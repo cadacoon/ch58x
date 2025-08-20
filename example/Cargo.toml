@@ -1,0 +1,20 @@
+[package]
+name = "ch58x-example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+riscv-rt = "0.15"
+
+ch58x = { path = "..", features = ["critical-section", "rt", "v-trap"] }
+ch58x-hal = { path = "../hal" }
+
+embassy-executor = { version = "0.8", features = ["arch-riscv32", "executor-thread"] }
+embassy-futures = "0.1"
+embassy-time = "0.4"
+embassy-usb = "0.5"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"

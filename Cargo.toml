@@ -1,0 +1,22 @@
+[workspace]
+resolver = "3"
+members = ["hal", "example"]
+
+[package]
+name = "ch58x"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+critical-section = { version = "1.2", features = ["restore-state-bool"], optional = true }
+riscv = "0.14"
+riscv-rt = { version = "0.15", features = ["device", "memory", "single-hart", "no-xie-xip", "post-init"], optional = true }
+vcell = "0.1"
+
+[features]
+rt = ["riscv-rt"]
+v-trap = ["rt"]
+
+[patch.crates-io]
+riscv = { git = "https://github.com/rust-embedded/riscv.git" }
+riscv-rt = { git = "https://github.com/rust-embedded/riscv.git" }
