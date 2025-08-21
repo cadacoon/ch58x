@@ -47,3 +47,4 @@ riscv_config:
     value: 0xE0
   - name: P15
     value: 0xF0
+  base_isa: rv32i

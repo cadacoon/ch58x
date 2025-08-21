@@ -1,4 +1,9 @@
-use crate::{pfic::PficExt, sys::SysExt};
+use crate::{
+    interrupt::{CoreInterrupt, Priority},
+    pfic::PficExt,
+    sys::SysExt,
+    Pfic, Sys, Systick,
+};
 use core::{
     cell::{OnceCell, RefCell},
     sync::atomic::{AtomicU32, Ordering},
@@ -7,10 +12,6 @@ use critical_section::CriticalSection;
 use embassy_sync::blocking_mutex::{raw::CriticalSectionRawMutex, Mutex};
 use embassy_time_driver::TICK_HZ;
 use embassy_time_queue_utils::Queue;
-use pac::{
-    interrupt::{CoreInterrupt, Priority},
-    Pfic, Sys, Systick,
-};
 
 pub struct Driver {
     systick: OnceCell<Systick>,
@@ -116,7 +117,7 @@ pub fn init(systick: Systick, sys: &Sys, pfic: &Pfic) {
     pfic.enable(CoreInterrupt::SysTick);
 }
 
-#[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
+//#[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
 fn systick() {
     critical_section::with(|cs| DRIVER.trigger_alarm(cs));
 }

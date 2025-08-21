@@ -1,3 +1,4 @@
+use crate::Sys;
 use riscv::asm::delay;
 
 pub trait SysExt {
@@ -5,7 +6,7 @@ pub trait SysExt {
     fn fsys(&self) -> u32;
 }
 
-impl SysExt for pac::Sys {
+impl SysExt for Sys {
     fn set(self, config: Config) -> Self {
         match config.clock32ksrc {
             Clock32KSrc::LSE => {
@@ -159,14 +160,14 @@ impl Config {
 pub fn with_safe_access_mode<R>(f: impl FnOnce() -> R) -> R {
     critical_section::with(|_| {
         unsafe {
-            pac::Sys::steal().safe_access_sig().write(|w| w.bits(0x57));
-            pac::Sys::steal().safe_access_sig().write(|w| w.bits(0xA8));
+            Sys::steal().safe_access_sig().write(|w| w.bits(0x57));
+            Sys::steal().safe_access_sig().write(|w| w.bits(0xA8));
         }
 
         let value = f();
 
         unsafe {
-            pac::Sys::steal().safe_access_sig().write(|w| w.bits(0x00));
+            Sys::steal().safe_access_sig().write(|w| w.bits(0x00));
         }
 
         value

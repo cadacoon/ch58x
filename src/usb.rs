@@ -1,10 +1,10 @@
+use crate::{raw::usb::int_st::UisToken, Usb};
 use core::{future::poll_fn, marker::PhantomData, task::Poll};
 use embassy_sync::waitqueue::AtomicWaker;
 use embassy_usb_driver::{
     Direction, EndpointAddress, EndpointAllocError, EndpointError, EndpointInfo, EndpointType,
     Event, Unsupported,
 };
-use pac::{interrupt::ExternalInterrupt, usb::int_st::UisToken, Usb};
 
 pub struct Driver;
 
@@ -410,7 +410,7 @@ impl embassy_usb_driver::ControlPipe for ControlPipe {
 static BUS_WAKER: AtomicWaker = AtomicWaker::new();
 static EP_WAKERS: [AtomicWaker; 8] = [const { AtomicWaker::new() }; 8];
 
-#[riscv_rt::external_interrupt(ExternalInterrupt::USB)]
+//#[riscv_rt::external_interrupt(ExternalInterrupt::USB)]
 fn usb() {
     let usb = unsafe { Usb::steal() };
 

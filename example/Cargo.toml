@@ -5,9 +5,7 @@ edition = "2024"
 
 [dependencies]
 riscv = "0.14"
-riscv-rt = "0.15"
 ch58x = { path = ".." }
-ch58x-hal = { path = "../hal" }
 
 embassy-executor = { version = "0.8", features = [
     "arch-riscv32",

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["hal", "example"]
+members = ["example"]
 
 [package]
 name = "ch58x"
@@ -8,24 +8,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-critical-section = { version = "1.2", features = [
-    "restore-state-bool",
-], optional = true }
+critical-section = { version = "1.2", features = ["restore-state-bool"] }
 riscv = "0.14"
-riscv-rt = { version = "0.15", features = [
-    "device",
-    "memory",
-    "single-hart",
-    "no-xie-xip",
-    "no-interrupts",
-    "v-trap",
-], optional = true }
 vcell = "0.1"
 
-[features]
-rt = ["riscv-rt"]
-v-trap = ["riscv-rt/v-trap"]
+embedded-hal = "1.0"
 
-[patch.crates-io]
-riscv = { git = "https://github.com/rust-embedded/riscv.git" }
-riscv-rt = { git = "https://github.com/rust-embedded/riscv.git" }
+embassy-sync = "0.7"
+embassy-time-driver = "0.2"
+embassy-time-queue-utils = "0.2"
+embassy-usb-driver = "0.2"
