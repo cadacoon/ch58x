@@ -1,4 +1,4 @@
-use pac::{Pfic, interrupt::Priority};
+use pac::{interrupt::Priority, Pfic};
 use riscv::{InterruptNumber, PriorityNumber};
 
 pub trait PficExt {

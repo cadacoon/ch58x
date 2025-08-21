@@ -4,15 +4,13 @@ use embassy_usb_driver::{
     Direction, EndpointAddress, EndpointAllocError, EndpointError, EndpointInfo, EndpointType,
     Event, Unsupported,
 };
-use pac::{Usb, interrupt::ExternalInterrupt};
+use pac::{interrupt::ExternalInterrupt, usb::int_st::UisToken, Usb};
 
-pub struct Driver {
-    usb: Usb,
-}
+pub struct Driver;
 
 impl Driver {
-    pub fn new(usb: Usb) -> Self {
-        Self { usb }
+    pub fn new(_usb: Usb) -> Self {
+        Self
     }
 
     fn alloc_endpoint<D: Dir>(
@@ -23,7 +21,7 @@ impl Driver {
         interval_ms: u8,
     ) -> Result<Endpoint<D>, EndpointAllocError> {
         Ok(Endpoint {
-            _phantom: PhantomData,
+            _dir: PhantomData,
             info: EndpointInfo {
                 addr: ep_addr.unwrap(),
                 ep_type,
@@ -89,31 +87,31 @@ impl embassy_usb_driver::Bus for Bus {
                 usb.dev_ad().reset();
 
                 usb.uep0_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep1_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep2_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep3_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep4_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep5_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep6_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
                 usb.uep7_ctrl()
-                    .write(|w| unsafe { w.uep_r_res().bits(0b10).uep_t_res().bits(0b10) });
+                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
 
+                // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_bus_rst().set_bit());
-                critical_section::with(|_| {
-                    usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit());
-                });
+                critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit()));
 
                 Poll::Ready(Event::Reset)
             } else if intfg.uif_suspend().bit() {
                 let misst = usb.mis_st().read();
 
+                // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_suspend().set_bit());
                 critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_suspend().set_bit()));
 
@@ -136,38 +134,31 @@ impl embassy_usb_driver::Bus for Bus {
                 match ep_addr.index() {
                     1 => {
                         usb.uep4_1_mod().modify(|_, w| w.uep1_rx_en().bit(enabled));
-                        usb.uep1_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep1_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     2 => {
                         usb.uep2_3_mod().modify(|_, w| w.uep2_rx_en().bit(enabled));
-                        usb.uep2_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep2_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     3 => {
                         usb.uep2_3_mod().modify(|_, w| w.uep3_rx_en().bit(enabled));
-                        usb.uep3_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep3_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     4 => {
                         usb.uep4_1_mod().modify(|_, w| w.uep4_rx_en().bit(enabled));
-                        usb.uep4_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep4_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     5 => {
                         usb.uep567_mod().modify(|_, w| w.uep5_rx_en().bit(enabled));
-                        usb.uep5_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep5_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     6 => {
                         usb.uep567_mod().modify(|_, w| w.uep6_rx_en().bit(enabled));
-                        usb.uep6_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep6_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     7 => {
                         usb.uep567_mod().modify(|_, w| w.uep7_rx_en().bit(enabled));
-                        usb.uep7_ctrl()
-                            .write(|w| unsafe { w.uep_r_res().bits(0b10) }); // NAK
+                        usb.uep7_ctrl().write(|w| w.uep_r_res().nak());
                     }
                     _ => unreachable!(),
                 };
@@ -176,43 +167,37 @@ impl embassy_usb_driver::Bus for Bus {
                 match ep_addr.index() {
                     1 => {
                         usb.uep4_1_mod().modify(|_, w| w.uep1_tx_en().bit(enabled));
-                        usb.uep1_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep1_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     2 => {
                         usb.uep2_3_mod().modify(|_, w| w.uep2_tx_en().bit(enabled));
-                        usb.uep2_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep2_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     3 => {
                         usb.uep2_3_mod().modify(|_, w| w.uep3_tx_en().bit(enabled));
-                        usb.uep3_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep3_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     4 => {
                         usb.uep4_1_mod().modify(|_, w| w.uep4_tx_en().bit(enabled));
-                        usb.uep4_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep4_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     5 => {
                         usb.uep567_mod().modify(|_, w| w.uep5_tx_en().bit(enabled));
-                        usb.uep5_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep5_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     6 => {
                         usb.uep567_mod().modify(|_, w| w.uep6_tx_en().bit(enabled));
-                        usb.uep6_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep6_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     7 => {
                         usb.uep567_mod().modify(|_, w| w.uep7_tx_en().bit(enabled));
-                        usb.uep7_ctrl()
-                            .write(|w| unsafe { w.uep_t_res().bits(0b10) }); // NAK
+                        usb.uep7_ctrl().write(|w| w.uep_t_res().nak());
                     }
                     _ => unreachable!(),
                 };
             }
         }
+
         EP_WAKERS[ep_addr.index()].wake();
     }
 
@@ -245,8 +230,8 @@ impl Dir for In {
     }
 }
 
-pub struct Endpoint<D> {
-    _phantom: PhantomData<D>,
+pub struct Endpoint<DIR: Dir> {
+    _dir: PhantomData<DIR>,
     info: EndpointInfo,
 }
 
@@ -317,8 +302,7 @@ impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
             let intfg = usb.int_fg().read();
             let intst = usb.int_st().read();
             if intfg.uif_transfer().bit() && intst.uis_endp() == self.info.addr.index() as u8 {
-                // OUT
-                let res = if intst.uis_token() == 0b00 {
+                let res = if intst.uis_token().is_out() {
                     let len = usb.rx_len().read().bits() as usize;
                     if len == buf.len() {
                         Poll::Ready(Ok(len))
@@ -329,13 +313,10 @@ impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
                     Poll::Ready(Err(EndpointError::Disabled))
                 };
 
-                usb.uep0_ctrl().modify(|r, w| unsafe {
-                    w.uep_r_res()
-                        .bits(0b10)
-                        .uep_r_tog()
-                        .bit(!r.uep_r_tog().bit()) // NAK
-                });
+                usb.uep0_ctrl()
+                    .modify(|r, w| w.uep_r_res().nak().uep_r_tog().bit(!r.uep_r_tog().bit()));
 
+                // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_transfer().set_bit());
                 critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_transfer().set_bit()));
 
@@ -361,20 +342,16 @@ impl embassy_usb_driver::EndpointIn for Endpoint<In> {
             let intfg = usb.int_fg().read();
             let intst = usb.int_st().read();
             if intfg.uif_transfer().bit() && intst.uis_endp() == self.info.addr.index() as u8 {
-                // IN
-                let res = if intst.uis_token() == 0b10 {
+                let res = if intst.uis_token().is_in() {
                     Poll::Ready(Ok(()))
                 } else {
                     Poll::Ready(Err(EndpointError::Disabled))
                 };
 
-                usb.uep0_ctrl().modify(|r, w| unsafe {
-                    w.uep_t_res()
-                        .bits(0b10)
-                        .uep_t_tog()
-                        .bit(!r.uep_t_tog().bit()) // NAK
-                });
+                usb.uep0_ctrl()
+                    .modify(|r, w| w.uep_t_res().nak().uep_t_tog().bit(!r.uep_t_tog().bit()));
 
+                // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_transfer().set_bit());
                 critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_transfer().set_bit()));
 
@@ -430,9 +407,8 @@ impl embassy_usb_driver::ControlPipe for ControlPipe {
     }
 }
 
-const NEW_AW: AtomicWaker = AtomicWaker::new();
-static BUS_WAKER: AtomicWaker = NEW_AW;
-static EP_WAKERS: [AtomicWaker; 8] = [NEW_AW; 8];
+static BUS_WAKER: AtomicWaker = AtomicWaker::new();
+static EP_WAKERS: [AtomicWaker; 8] = [const { AtomicWaker::new() }; 8];
 
 #[riscv_rt::external_interrupt(ExternalInterrupt::USB)]
 fn usb() {
@@ -440,32 +416,38 @@ fn usb() {
 
     let intfg = usb.int_fg().read();
     if intfg.uif_bus_rst().bit() {
+        // will be handled outside the isr
         usb.int_en().modify(|_, w| w.uie_bus_rst().clear_bit());
-        BUS_WAKER.wake();
-    }
-    if intfg.uif_suspend().bit() {
-        usb.int_en().modify(|_, w| w.uie_suspend().clear_bit());
         BUS_WAKER.wake();
     }
     if intfg.uif_transfer().bit() {
         let intst = usb.int_st().read();
-        match intst.uis_token().bits() {
-            0 => {
+        match intst.uis_token().variant() {
+            UisToken::Out => {
                 if intst.uis_tog_ok().bit() {
-                    EP_WAKERS[intst.uis_endp().bits() as usize].wake();
+                    // will be handled outside the isr
                     usb.int_en().modify(|_, w| w.uie_transfer().clear_bit());
+                    EP_WAKERS[intst.uis_endp().bits() as usize].wake();
                 } else {
+                    // no handling required
                     usb.int_fg().write(|w| w.uif_transfer().set_bit());
                 }
             }
-            1 => {
-                EP_WAKERS[intst.uis_endp().bits() as usize].wake();
+            UisToken::In => {
+                // will be handled outside the isr
                 usb.int_en().modify(|_, w| w.uie_transfer().clear_bit());
+                EP_WAKERS[intst.uis_endp().bits() as usize].wake();
             }
             _ => unreachable!(),
         }
     }
+    if intfg.uif_suspend().bit() {
+        // will be handled outside the isr
+        usb.int_en().modify(|_, w| w.uie_suspend().clear_bit());
+        BUS_WAKER.wake();
+    }
     if intfg.uif_hst_sof().bit() {
+        // no handling required
         usb.int_fg().write(|w| w.uif_hst_sof().set_bit());
     }
 }

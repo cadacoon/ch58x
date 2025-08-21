@@ -5979,6 +5979,25 @@
                             <name>MASK_UIS_TOKEN</name>
                             <description>RO, bit mask of current token PID code received for USB device mode</description>
                             <bitRange>[5:4]</bitRange>
+                            <enumeratedValues>
+                                <name>UIS_TOKEN</name>
+                                <enumeratedValue>
+                                    <name>OUT</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>SOF</name>
+                                    <value>1</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>IN</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>IDLE</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UIS_TOG_OK</name>
@@ -6309,11 +6328,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6359,11 +6406,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6449,11 +6524,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6544,11 +6647,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6619,11 +6750,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6669,11 +6828,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6719,11 +6906,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -6769,11 +6984,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7474,11 +7717,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7524,11 +7795,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7614,11 +7913,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7704,11 +8031,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7779,11 +8134,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7829,11 +8212,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>
@@ -7879,11 +8290,39 @@
                             <name>MASK_UEP_T_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
                             <bitRange>[1:0]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>MASK_UEP_R_RES</name>
                             <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
                             <bitRange>[3:2]</bitRange>
+                            <enumeratedValues>
+                                <enumeratedValue>
+                                    <name>ACK</name>
+                                    <value>0</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>NAK</name>
+                                    <value>2</value>
+                                </enumeratedValue>
+                                <enumeratedValue>
+                                    <name>STALL</name>
+                                    <value>3</value>
+                                </enumeratedValue>
+                            </enumeratedValues>
                         </field>
                         <field>
                             <name>RB_UEP_AUTO_TOG</name>

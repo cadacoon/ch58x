@@ -46,26 +46,89 @@ GPIOB:
     _strip:
       - PB_
 
-TMR*:
+TMR0:
   _strip:
-    - TMR*_
+    - TMR0_
   "*":
     _strip:
-      - TMR*_
+      - TMR_
+      - TMR0_
 
-UART*:
+TMR1:
   _strip:
-    - UART*_
+    - TMR1_
   "*":
     _strip:
-      - UART*_
+      - TMR_
+      - TMR1_
 
-SPI*:
+TMR2:
   _strip:
-    - SPI*_
+    - TMR2_
   "*":
     _strip:
-      - SPI*_
+      - TMR_
+      - TMR2_
+
+TMR3:
+  _strip:
+    - TMR3_
+  "*":
+    _strip:
+      - TMR_
+      - TMR3_
+
+UART0:
+  _strip:
+    - UART0_
+  "*":
+    _strip:
+      - UART0_
+
+UART1:
+  _strip:
+    - UART1_
+  "*":
+    _strip:
+      - UART1_
+
+UART2:
+  _strip:
+    - UART2_
+  "*":
+    _strip:
+      - UART2_
+
+UART3:
+  _strip:
+    - UART3_
+  "*":
+    _strip:
+      - UART3_
+
+SPI0:
+  _strip:
+    - SPI0_
+  "*":
+    _strip:
+      - SPI_
+      - SPI0_
+  CTRL_MOD:
+    _modify:
+      "2WIRE_MOD":
+        name: "TWO_WIRE_MOD"
+
+SPI1:
+  _strip:
+    - SPI1_
+  "*":
+    _strip:
+      - SPI_
+      - SPI1_
+  CTRL_MOD:
+    _modify:
+      "2WIRE_MOD":
+        name: "TWO_WIRE_MOD"
 
 I2C:
   _strip:

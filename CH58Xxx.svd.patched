@@ -934,8 +934,8 @@
           </fields>
         </register>
         <register>
-          <name>RESET_STATUS_R8_GLOB_ROM_CFG</name>
-          <description>RWA, reset status, SAM or flash ROM configuration</description>
+          <name>RESET_STATUS</name>
+          <description>RWA, reset status</description>
           <addressOffset>0x44</addressOffset>
           <size>0x8</size>
           <access>read-only</access>
@@ -947,6 +947,16 @@
               <bitRange>[2:0]</bitRange>
               <access>read-only</access>
             </field>
+          </fields>
+        </register>
+        <register>
+          <name>GLOB_ROM_CFG</name>
+          <description>RWA, flash ROM configuration</description>
+          <addressOffset>0x44</addressOffset>
+          <size>0x8</size>
+          <access>read-only</access>
+          <resetValue>0x00000001</resetValue>
+          <fields>
             <field>
               <name>ROM_CODE_OFS</name>
               <description>RWA, code offset address selection in Flash ROM: 0=start address 0x000000, 1=start address 0x008000</description>
@@ -1934,42 +1944,42 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_IN</name>
+              <name>MODE_IN</name>
               <description>RW, timer in mode: 0=timer/PWM, 1=capture/count</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear timer FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>OUNT_EN</name>
+              <name>COUNT_EN</name>
               <description>RW, timer count enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UT_EN</name>
+              <name>OUT_EN</name>
               <description>RW, timer output enable</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>UT_POLAR</name>
+              <name>OUT_POLAR</name>
               <description>RW, timer PWM output polarity: 0=default low and high action, 1=default high and low action</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>AP_COUNT</name>
+              <name>CAP_COUNT</name>
               <description>RW, count sub-mode if RB_TMR_MODE_IN=1: 0=capture, 1=count</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>WM_REPEAT</name>
+              <name>PWM_REPEAT</name>
               <description>RW, timer PWM repeat mode: 00=1, 01=4, 10=8, 11-16</description>
               <bitRange>[7:6]</bitRange>
             </field>
             <field>
-              <name>AP_EDGE</name>
+              <name>CAP_EDGE</name>
               <description>RW, timer capture edge mode: 00=disable, 01=edge change, 10=fall to fall, 11-rise to rise</description>
               <bitRange>[7:6]</bitRange>
             </field>
@@ -1984,27 +1994,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CYC_END</name>
+              <name>IE_CYC_END</name>
               <description>RW, enable interrupt for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_DATA_ACT</name>
+              <name>IE_DATA_ACT</name>
               <description>RW, enable interrupt for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2019,27 +2029,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>F_CYC_END</name>
+              <name>IF_CYC_END</name>
               <description>RW1, interrupt flag for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_DATA_ACT</name>
+              <name>IF_DATA_ACT</name>
               <description>RW1, interrupt flag for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2133,42 +2143,42 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_IN</name>
+              <name>MODE_IN</name>
               <description>RW, timer in mode: 0=timer/PWM, 1=capture/count</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear timer FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>OUNT_EN</name>
+              <name>COUNT_EN</name>
               <description>RW, timer count enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UT_EN</name>
+              <name>OUT_EN</name>
               <description>RW, timer output enable</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>UT_POLAR</name>
+              <name>OUT_POLAR</name>
               <description>RW, timer PWM output polarity: 0=default low and high action, 1=default high and low action</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>AP_COUNT</name>
+              <name>CAP_COUNT</name>
               <description>RW, count sub-mode if RB_TMR_MODE_IN=1: 0=capture, 1=count</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>WM_REPEAT</name>
+              <name>PWM_REPEAT</name>
               <description>RW, timer PWM repeat mode: 00=1, 01=4, 10=8, 11-16</description>
               <bitRange>[7:6]</bitRange>
             </field>
             <field>
-              <name>AP_EDGE</name>
+              <name>CAP_EDGE</name>
               <description>RW, timer capture edge mode: 00=disable, 01=edge change, 10=fall to fall, 11-rise to rise</description>
               <bitRange>[7:6]</bitRange>
             </field>
@@ -2183,12 +2193,12 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>MA_ENABLE</name>
+              <name>DMA_ENABLE</name>
               <description>RW, timer1/2 DMA enable</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>MA_LOOP</name>
+              <name>DMA_LOOP</name>
               <description>RW, timer1/2 DMA address loop enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
@@ -2203,27 +2213,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CYC_END</name>
+              <name>IE_CYC_END</name>
               <description>RW, enable interrupt for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_DATA_ACT</name>
+              <name>IE_DATA_ACT</name>
               <description>RW, enable interrupt for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2238,27 +2248,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>F_CYC_END</name>
+              <name>IF_CYC_END</name>
               <description>RW1, interrupt flag for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_DATA_ACT</name>
+              <name>IF_DATA_ACT</name>
               <description>RW1, interrupt flag for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2397,42 +2407,42 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_IN</name>
+              <name>MODE_IN</name>
               <description>RW, timer in mode: 0=timer_PWM, 1=capture_count</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear timer FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>OUNT_EN</name>
+              <name>COUNT_EN</name>
               <description>RW, timer count enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UT_EN</name>
+              <name>OUT_EN</name>
               <description>RW, timer output enable</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>UT_POLAR</name>
+              <name>OUT_POLAR</name>
               <description>RW, timer PWM output polarity: 0=default low and high action, 1=default high and low action</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>AP_COUNT</name>
+              <name>CAP_COUNT</name>
               <description>RW, count sub-mode if RB_TMR_MODE_IN=1: 0=capture, 1=count</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>WM_REPEAT</name>
+              <name>PWM_REPEAT</name>
               <description>RW, timer PWM repeat mode: 00=1, 01=4, 10=8, 11-16</description>
               <bitRange>[7:6]</bitRange>
             </field>
             <field>
-              <name>AP_EDGE</name>
+              <name>CAP_EDGE</name>
               <description>RW, timer capture edge mode: 00=disable, 01=edge change, 10=fall to fall, 11-rise to rise</description>
               <bitRange>[7:6]</bitRange>
             </field>
@@ -2447,12 +2457,12 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>MA_ENABLE</name>
+              <name>DMA_ENABLE</name>
               <description>RW, timer1_2 DMA enable</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>MA_LOOP</name>
+              <name>DMA_LOOP</name>
               <description>RW, timer1_2 DMA address loop enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
@@ -2467,27 +2477,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CYC_END</name>
+              <name>IE_CYC_END</name>
               <description>RW, enable interrupt for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_DATA_ACT</name>
+              <name>IE_DATA_ACT</name>
               <description>RW, enable interrupt for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2502,27 +2512,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>F_CYC_END</name>
+              <name>IF_CYC_END</name>
               <description>RW1, interrupt flag for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_DATA_ACT</name>
+              <name>IF_DATA_ACT</name>
               <description>RW1, interrupt flag for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2663,42 +2673,42 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_IN</name>
+              <name>MODE_IN</name>
               <description>RW, timer in mode: 0=timer/PWM, 1=capture/count</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear timer FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>OUNT_EN</name>
+              <name>COUNT_EN</name>
               <description>RW, timer count enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UT_EN</name>
+              <name>OUT_EN</name>
               <description>RW, timer output enable</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>UT_POLAR</name>
+              <name>OUT_POLAR</name>
               <description>RW, timer PWM output polarity: 0=default low and high action, 1=default high and low action</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>AP_COUNT</name>
+              <name>CAP_COUNT</name>
               <description>RW, count sub-mode if RB_TMR_MODE_IN=1: 0=capture, 1=count</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>WM_REPEAT</name>
+              <name>PWM_REPEAT</name>
               <description>RW, timer PWM repeat mode: 00=1, 01=4, 10=8, 11-16</description>
               <bitRange>[7:6]</bitRange>
             </field>
             <field>
-              <name>AP_EDGE</name>
+              <name>CAP_EDGE</name>
               <description>RW, timer capture edge mode: 00=disable, 01=edge change, 10=fall to fall, 11-rise to rise</description>
               <bitRange>[7:6]</bitRange>
             </field>
@@ -2713,27 +2723,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CYC_END</name>
+              <name>IE_CYC_END</name>
               <description>RW, enable interrupt for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_DATA_ACT</name>
+              <name>IE_DATA_ACT</name>
               <description>RW, enable interrupt for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -2748,27 +2758,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>F_CYC_END</name>
+              <name>IF_CYC_END</name>
               <description>RW1, interrupt flag for timer capture count timeout or PWM cycle end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_DATA_ACT</name>
+              <name>IF_DATA_ACT</name>
               <description>RW1, interrupt flag for timer capture input action or PWM trigger</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for timer FIFO half (capture fifo &gt;=4 or PWM fifo less than 3</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for timer1/2 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for timer FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
@@ -4231,47 +4241,47 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_SLAVE</name>
+              <name>MODE_SLAVE</name>
               <description>RW, SPI0 slave mode: 0=master or host, 1=slave or device</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear SPI FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>WIRE_MOD</name>
+              <name>TWO_WIRE_MOD</name>
               <description>RW, SPI0 enable 2 wire mode for slave: 0=3wire(SCK0,MOSI,MISO), 1=2wire(SCK0,MISO=MXSX)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>ST_SCK_MOD</name>
+              <name>MST_SCK_MOD</name>
               <description>RW, SPI master clock mode: 0=mode 0, 1=mode 3</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>LV_CMD_MOD</name>
+              <name>SLV_CMD_MOD</name>
               <description>RW, SPI0 slave command mode: 0=byte stream, 1=first byte command</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>IFO_DIR</name>
+              <name>FIFO_DIR</name>
               <description>RW, SPI FIFO direction: 0=out(write @master mode), 1=in(read @master mode)</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>CK_OE</name>
+              <name>SCK_OE</name>
               <description>RW, SPI SCK output enable</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>OSI_OE</name>
+              <name>MOSI_OE</name>
               <description>RW, SPI MOSI output enable</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>ISO_OE</name>
+              <name>MISO_OE</name>
               <description>RW, SPI MISO output enable</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4286,27 +4296,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>MA_ENABLE</name>
+              <name>DMA_ENABLE</name>
               <description>RW, SPI0 DMA enable</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>MA_LOOP</name>
+              <name>DMA_LOOP</name>
               <description>RW, SPI0 DMA address loop enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UTO_IF</name>
+              <name>AUTO_IF</name>
               <description>RW, enable buffer/FIFO accessing to auto clear RB_SPI_IF_BYTE_END interrupt flag</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>IT_ORDER</name>
+              <name>BIT_ORDER</name>
               <description>RW, SPI bit data order: 0=MSB first, 1=LSB first</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>ST_DLY_EN</name>
+              <name>MST_DLY_EN</name>
               <description>RW, SPI master input delay enable</description>
               <bitRange>[6:6]</bitRange>
             </field>
@@ -4321,32 +4331,32 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CNT_END</name>
+              <name>IE_CNT_END</name>
               <description>RW, enable interrupt for SPI total byte count end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_BYTE_END</name>
+              <name>IE_BYTE_END</name>
               <description>RW, enable interrupt for SPI byte exchanged</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for SPI FIFO half</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for SPI0 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for SPI0 FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>E_FST_BYTE</name>
+              <name>IE_FST_BYTE</name>
               <description>RW, enable interrupt for SPI0 slave mode first byte received</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4406,22 +4416,22 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>LV_CMD_ACT</name>
+              <name>SLV_CMD_ACT</name>
               <description>RO, SPI0 slave first byte or  command flag</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>IFO_READY</name>
+              <name>FIFO_READY</name>
               <description>RO, SPI FIFO ready status</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>LV_CS_LOAD</name>
+              <name>SLV_CS_LOAD</name>
               <description>RO, SPI0 slave chip-select loading status</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>LV_SELECT</name>
+              <name>SLV_SELECT</name>
               <description>RO, SPI0 slave selection status</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4436,37 +4446,37 @@
           <resetValue>0x00000040</resetValue>
           <fields>
             <field>
-              <name>F_CNT_END</name>
+              <name>IF_CNT_END</name>
               <description>RW1, interrupt flag for SPI total byte count end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_BYTE_END</name>
+              <name>IF_BYTE_END</name>
               <description>RW1, interrupt flag for SPI byte exchanged</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for SPI FIFO half</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for SPI0 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for SPI0 FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>REE</name>
+              <name>FREE</name>
               <description>RO, current SPI free status</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>F_FST_BYTE</name>
+              <name>IF_FST_BYTE</name>
               <description>RW1, interrupt flag for SPI0 slave mode first byte received</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4604,47 +4614,47 @@
           <resetValue>0x00000002</resetValue>
           <fields>
             <field>
-              <name>ODE_SLAVE</name>
+              <name>MODE_SLAVE</name>
               <description>RW, SPI0 slave mode: 0=master or host, 1=slave or device</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>LL_CLEAR</name>
+              <name>ALL_CLEAR</name>
               <description>RW, force clear SPI FIFO and count</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>WIRE_MOD</name>
+              <name>TWO_WIRE_MOD</name>
               <description>RW, SPI0 enable 2 wire mode for slave: 0=3wire(SCK0,MOSI,MISO), 1=2wire(SCK0,MISO=MXSX)</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>ST_SCK_MOD</name>
+              <name>MST_SCK_MOD</name>
               <description>RW, SPI master clock mode: 0=mode 0, 1=mode 3</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>LV_CMD_MOD</name>
+              <name>SLV_CMD_MOD</name>
               <description>RW, SPI0 slave command mode: 0=byte stream, 1=first byte command</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>IFO_DIR</name>
+              <name>FIFO_DIR</name>
               <description>RW, SPI FIFO direction: 0=out(write @master mode), 1=in(read @master mode)</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>CK_OE</name>
+              <name>SCK_OE</name>
               <description>RW, SPI SCK output enable</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>OSI_OE</name>
+              <name>MOSI_OE</name>
               <description>RW, SPI MOSI output enable</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>ISO_OE</name>
+              <name>MISO_OE</name>
               <description>RW, SPI MISO output enable</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4659,27 +4669,27 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>MA_ENABLE</name>
+              <name>DMA_ENABLE</name>
               <description>RW, SPI0 DMA enable</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>MA_LOOP</name>
+              <name>DMA_LOOP</name>
               <description>RW, SPI0 DMA address loop enable</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>UTO_IF</name>
+              <name>AUTO_IF</name>
               <description>RW, enable buffer/FIFO accessing to auto clear RB_SPI_IF_BYTE_END interrupt flag</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>IT_ORDER</name>
+              <name>BIT_ORDER</name>
               <description>RW, SPI bit data order: 0=MSB first, 1=LSB first</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>ST_DLY_EN</name>
+              <name>MST_DLY_EN</name>
               <description>RW, SPI master input delay enable</description>
               <bitRange>[6:6]</bitRange>
             </field>
@@ -4694,32 +4704,32 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>E_CNT_END</name>
+              <name>IE_CNT_END</name>
               <description>RW, enable interrupt for SPI total byte count end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>E_BYTE_END</name>
+              <name>IE_BYTE_END</name>
               <description>RW, enable interrupt for SPI byte exchanged</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_HF</name>
+              <name>IE_FIFO_HF</name>
               <description>RW, enable interrupt for SPI FIFO half</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>E_DMA_END</name>
+              <name>IE_DMA_END</name>
               <description>RW, enable interrupt for SPI0 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>E_FIFO_OV</name>
+              <name>IE_FIFO_OV</name>
               <description>RW, enable interrupt for SPI0 FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>E_FST_BYTE</name>
+              <name>IE_FST_BYTE</name>
               <description>RW, enable interrupt for SPI0 slave mode first byte received</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4779,22 +4789,22 @@
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
-              <name>LV_CMD_ACT</name>
+              <name>SLV_CMD_ACT</name>
               <description>RO, SPI0 slave first byte or  command flag</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>IFO_READY</name>
+              <name>FIFO_READY</name>
               <description>RO, SPI FIFO ready status</description>
               <bitRange>[5:5]</bitRange>
             </field>
             <field>
-              <name>LV_CS_LOAD</name>
+              <name>SLV_CS_LOAD</name>
               <description>RO, SPI0 slave chip-select loading status</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>LV_SELECT</name>
+              <name>SLV_SELECT</name>
               <description>RO, SPI0 slave selection status</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -4809,37 +4819,37 @@
           <resetValue>0x00000040</resetValue>
           <fields>
             <field>
-              <name>F_CNT_END</name>
+              <name>IF_CNT_END</name>
               <description>RW1, interrupt flag for SPI total byte count end</description>
               <bitRange>[0:0]</bitRange>
             </field>
             <field>
-              <name>F_BYTE_END</name>
+              <name>IF_BYTE_END</name>
               <description>RW1, interrupt flag for SPI byte exchanged</description>
               <bitRange>[1:1]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_HF</name>
+              <name>IF_FIFO_HF</name>
               <description>RW1, interrupt flag for SPI FIFO half</description>
               <bitRange>[2:2]</bitRange>
             </field>
             <field>
-              <name>F_DMA_END</name>
+              <name>IF_DMA_END</name>
               <description>RW1, interrupt flag for SPI0 DMA completion</description>
               <bitRange>[3:3]</bitRange>
             </field>
             <field>
-              <name>F_FIFO_OV</name>
+              <name>IF_FIFO_OV</name>
               <description>RW1, interrupt flag for SPI0 FIFO overflow</description>
               <bitRange>[4:4]</bitRange>
             </field>
             <field>
-              <name>REE</name>
+              <name>FREE</name>
               <description>RO, current SPI free status</description>
               <bitRange>[6:6]</bitRange>
             </field>
             <field>
-              <name>F_FST_BYTE</name>
+              <name>IF_FST_BYTE</name>
               <description>RW1, interrupt flag for SPI0 slave mode first byte received</description>
               <bitRange>[7:7]</bitRange>
             </field>
@@ -5970,6 +5980,25 @@
               <name>UIS_TOKEN</name>
               <description>RO, bit mask of current token PID code received for USB device mode</description>
               <bitRange>[5:4]</bitRange>
+              <enumeratedValues>
+                <name>UIS_TOKEN</name>
+                <enumeratedValue>
+                  <name>OUT</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SOF</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>IN</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>IDLE</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UIS_TOG_OK</name>
@@ -6300,11 +6329,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6350,11 +6407,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6440,11 +6525,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6535,11 +6648,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6610,11 +6751,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6660,11 +6829,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6710,11 +6907,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -6760,11 +6985,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7465,11 +7718,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7515,11 +7796,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7605,11 +7914,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7695,11 +8032,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7770,11 +8135,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7820,11 +8213,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>
@@ -7870,11 +8291,39 @@
               <name>UEP_T_RES</name>
               <description>bit mask of handshake response type for USB endpoint X transmittal (IN)</description>
               <bitRange>[1:0]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_R_RES</name>
               <description>bit mask of handshake response type for USB endpoint X receiving (OUT)</description>
               <bitRange>[3:2]</bitRange>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>ACK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>NAK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>STALL</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UEP_AUTO_TOG</name>

@@ -1,9 +1,9 @@
 #![no_std]
 
-pub extern crate ch58x as pac;
-pub extern crate embedded_hal as hal;
-pub extern crate riscv;
+extern crate ch58x as pac;
+extern crate embedded_hal as hal;
 
+pub mod gpio;
 pub mod pfic;
 pub mod sys;
 pub mod sysclk;
