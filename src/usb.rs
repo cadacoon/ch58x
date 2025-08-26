@@ -1,16 +1,44 @@
-use crate::{interrupt::CoreInterrupt, raw::usb::int_st::UisToken, Usb};
+use crate::{
+    interrupt::CoreInterrupt,
+    pfic::PficExt,
+    raw::usb::{int_st::UisToken, Uep0Ctrl, Uep0Dma, Uep0TLen},
+    Pfic, Sys, Usb,
+};
 use core::{future::poll_fn, marker::PhantomData, task::Poll};
 use embassy_sync::waitqueue::AtomicWaker;
 use embassy_usb_driver::{
-    Direction, EndpointAddress, EndpointAllocError, EndpointError, EndpointInfo, EndpointType,
-    Event, Unsupported,
+    Direction, EndpointAddress, EndpointAllocError, EndpointError, EndpointIn, EndpointInfo,
+    EndpointOut, EndpointType, Event, Unsupported,
 };
 
-pub struct Driver;
+#[derive(Copy, Clone)]
+struct EndpointData {
+    typ: EndpointType,
+    out: bool,
+    in_: bool,
+}
 
-impl Driver {
-    pub fn new(_usb: Usb) -> Self {
-        Self
+pub struct Driver<'a> {
+    eps: [EndpointData; 8],
+
+    buf: &'a mut [u8],
+    buf_offset: usize,
+}
+
+static BUS_WAKER: AtomicWaker = AtomicWaker::new();
+static EP_WAKERS: [AtomicWaker; 8] = [const { AtomicWaker::new() }; 8];
+
+impl<'a> Driver<'a> {
+    pub fn new(_usb: Usb, buf: &'a mut [u8]) -> Self {
+        Self {
+            eps: [EndpointData {
+                typ: EndpointType::Control,
+                out: false,
+                in_: false,
+            }; 8],
+            buf,
+            buf_offset: 0,
+        }
     }
 
     fn alloc_endpoint<D: Dir>(
@@ -20,6 +48,53 @@ impl Driver {
         max_packet_size: u16,
         interval_ms: u8,
     ) -> Result<Endpoint<D>, EndpointAllocError> {
+        let slot = if let Some(addr) = ep_addr {
+            let requested_index = addr.index();
+            if requested_index >= 8 {
+                return Err(EndpointAllocError);
+            }
+            if requested_index == 0 && ep_type != EndpointType::Control {
+                return Err(EndpointAllocError);
+            }
+            if match D::dir() {
+                Direction::Out => self.eps[requested_index].out,
+                Direction::In => self.eps[requested_index].in_,
+            } {
+                return Err(EndpointAllocError);
+            }
+            (requested_index, &mut self.eps[requested_index])
+        } else {
+            self.eps
+                .iter_mut()
+                .enumerate()
+                .find(|(i, ep)| {
+                    if *i == 0 && ep_type != EndpointType::Control {
+                        false
+                    } else {
+                        !ep.out && !ep.in_
+                            || match D::dir() {
+                                Direction::Out => !ep.out,
+                                Direction::In => !ep.in_,
+                            } && ep.typ == ep_type
+                    }
+                })
+                .unwrap()
+        };
+
+        if !slot.1.out && !slot.1.in_ {
+            let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
+            unsafe { Usb::steal() }
+                .uep_dma(slot.0)
+                .write(|w| unsafe { w.bits(buf as u16) });
+            self.buf_offset += 128;
+        }
+
+        slot.1.typ = ep_type;
+        match D::dir() {
+            Direction::Out => slot.1.out = true,
+            Direction::In => slot.1.in_ = true,
+        };
+
         Ok(Endpoint {
             _dir: PhantomData,
             info: EndpointInfo {
@@ -32,7 +107,7 @@ impl Driver {
     }
 }
 
-impl<'a> embassy_usb_driver::Driver<'a> for Driver {
+impl<'a> embassy_usb_driver::Driver<'a> for Driver<'a> {
     type EndpointOut = Endpoint<Out>;
     type EndpointIn = Endpoint<In>;
     type ControlPipe = ControlPipe;
@@ -59,53 +134,85 @@ impl<'a> embassy_usb_driver::Driver<'a> for Driver {
     }
 
     fn start(mut self, control_max_packet_size: u16) -> (Self::Bus, Self::ControlPipe) {
-        (Self::Bus {}, Self::ControlPipe {})
+        let out = self
+            .alloc_endpoint(EndpointType::Control, None, control_max_packet_size, 0)
+            .unwrap();
+        let in_ = self
+            .alloc_endpoint(EndpointType::Control, None, control_max_packet_size, 0)
+            .unwrap();
+        (Self::Bus { inited: false }, Self::ControlPipe { out, in_ })
     }
 }
 
-pub struct Bus {}
+pub struct Bus {
+    inited: bool,
+}
 
 impl Bus {
-    fn init(&mut self) {}
+    fn reset(&mut self) {
+        let usb = unsafe { Usb::steal() };
+        usb.dev_ad().reset();
+        usb.uep_ctrl(0)
+            .write(|w| w.uep_r_res().ack().uep_t_res().nak());
+        for ep_addr in 1..8 {
+            usb.uep_ctrl(ep_addr)
+                .write(|w| w.uep_r_res().nak().uep_t_res().nak());
+        }
+    }
 }
 
 impl embassy_usb_driver::Bus for Bus {
-    async fn enable(&mut self) {
-        let usb = unsafe { Usb::steal() };
-        critical_section::with(|_| usb.ctrl().modify(|_, w| w.uc_dev_pu_en().set_bit()));
-    }
+    async fn enable(&mut self) {}
 
     async fn disable(&mut self) {}
 
     async fn poll(&mut self) -> Event {
         let usb = unsafe { Usb::steal() };
+
+        if !self.inited {
+            usb.ctrl().write(|w| w);
+
+            unsafe { Sys::steal() }
+                .pin_analog_ie()
+                .modify(|_, w| w.pin_usb_ie().set_bit().pin_usb_dp_pu().set_bit());
+            usb.udev_ctrl()
+                .write(|w| w.ud_port_en().set_bit().ud_pd_dis().set_bit());
+
+            usb.dev_ad().reset();
+            usb.int_fg().write(|w| unsafe { w.bits(0xFF) });
+            usb.ctrl().write(|w| {
+                w.uc_dev_pu_en()
+                    .set_bit()
+                    .uc_int_busy()
+                    .set_bit()
+                    .uc_dma_en()
+                    .set_bit()
+            });
+            usb.int_en().write(|w| {
+                w.uie_bus_rst()
+                    .set_bit()
+                    .uie_transfer()
+                    .set_bit()
+                    .uie_suspend()
+                    .set_bit()
+            });
+
+            unsafe { Pfic::steal() }.enable(CoreInterrupt::USB);
+
+            self.inited = true;
+            return Event::PowerDetected;
+        }
+
         poll_fn(|cx| {
             BUS_WAKER.register(cx.waker());
 
             let intfg = usb.int_fg().read();
             if intfg.uif_bus_rst().bit() {
-                usb.dev_ad().reset();
-
-                usb.uep0_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep1_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep2_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep3_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep4_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep5_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep6_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
-                usb.uep7_ctrl()
-                    .write(|w| w.uep_r_res().ack().uep_t_res().nak());
+                self.reset();
 
                 // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_bus_rst().set_bit());
-                critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit()));
+                usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit());
 
                 Poll::Ready(Event::Reset)
             } else if intfg.uif_suspend().bit() {
@@ -113,7 +220,7 @@ impl embassy_usb_driver::Bus for Bus {
 
                 // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_suspend().set_bit());
-                critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_suspend().set_bit()));
+                usb.int_en().modify(|_, w| w.uie_suspend().set_bit());
 
                 if misst.ums_suspend().bit() {
                     Poll::Ready(Event::Suspend)
@@ -129,86 +236,37 @@ impl embassy_usb_driver::Bus for Bus {
 
     fn endpoint_set_enabled(&mut self, ep_addr: EndpointAddress, enabled: bool) {
         let usb = unsafe { Usb::steal() };
-        match ep_addr.direction() {
-            Direction::Out => {
-                match ep_addr.index() {
-                    1 => {
-                        usb.uep4_1_mod().modify(|_, w| w.uep1_rx_en().bit(enabled));
-                        usb.uep1_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    2 => {
-                        usb.uep2_3_mod().modify(|_, w| w.uep2_rx_en().bit(enabled));
-                        usb.uep2_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    3 => {
-                        usb.uep2_3_mod().modify(|_, w| w.uep3_rx_en().bit(enabled));
-                        usb.uep3_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    4 => {
-                        usb.uep4_1_mod().modify(|_, w| w.uep4_rx_en().bit(enabled));
-                        usb.uep4_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    5 => {
-                        usb.uep567_mod().modify(|_, w| w.uep5_rx_en().bit(enabled));
-                        usb.uep5_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    6 => {
-                        usb.uep567_mod().modify(|_, w| w.uep6_rx_en().bit(enabled));
-                        usb.uep6_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    7 => {
-                        usb.uep567_mod().modify(|_, w| w.uep7_rx_en().bit(enabled));
-                        usb.uep7_ctrl().write(|w| w.uep_r_res().nak());
-                    }
-                    _ => unreachable!(),
-                };
-            }
-            Direction::In => {
-                match ep_addr.index() {
-                    1 => {
-                        usb.uep4_1_mod().modify(|_, w| w.uep1_tx_en().bit(enabled));
-                        usb.uep1_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    2 => {
-                        usb.uep2_3_mod().modify(|_, w| w.uep2_tx_en().bit(enabled));
-                        usb.uep2_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    3 => {
-                        usb.uep2_3_mod().modify(|_, w| w.uep3_tx_en().bit(enabled));
-                        usb.uep3_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    4 => {
-                        usb.uep4_1_mod().modify(|_, w| w.uep4_tx_en().bit(enabled));
-                        usb.uep4_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    5 => {
-                        usb.uep567_mod().modify(|_, w| w.uep5_tx_en().bit(enabled));
-                        usb.uep5_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    6 => {
-                        usb.uep567_mod().modify(|_, w| w.uep6_tx_en().bit(enabled));
-                        usb.uep6_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    7 => {
-                        usb.uep567_mod().modify(|_, w| w.uep7_tx_en().bit(enabled));
-                        usb.uep7_ctrl().write(|w| w.uep_t_res().nak());
-                    }
-                    _ => unreachable!(),
-                };
-            }
-        }
+        match (ep_addr.index(), ep_addr.direction()) {
+            (4, Direction::In) => usb.uep4_1_mod().modify(|_, w| w.uep4_tx_en().bit(enabled)),
+            (4, Direction::Out) => usb.uep4_1_mod().modify(|_, w| w.uep4_rx_en().bit(enabled)),
+            (1, Direction::In) => usb.uep4_1_mod().modify(|_, w| w.uep1_tx_en().bit(enabled)),
+            (1, Direction::Out) => usb.uep4_1_mod().modify(|_, w| w.uep1_rx_en().bit(enabled)),
+            (2, Direction::In) => usb.uep2_3_mod().modify(|_, w| w.uep2_tx_en().bit(enabled)),
+            (2, Direction::Out) => usb.uep2_3_mod().modify(|_, w| w.uep2_rx_en().bit(enabled)),
+            (3, Direction::In) => usb.uep2_3_mod().modify(|_, w| w.uep3_tx_en().bit(enabled)),
+            (3, Direction::Out) => usb.uep2_3_mod().modify(|_, w| w.uep3_rx_en().bit(enabled)),
+            (5, Direction::In) => usb.uep567_mod().modify(|_, w| w.uep5_tx_en().bit(enabled)),
+            (5, Direction::Out) => usb.uep567_mod().modify(|_, w| w.uep5_rx_en().bit(enabled)),
+            (6, Direction::In) => usb.uep567_mod().modify(|_, w| w.uep6_tx_en().bit(enabled)),
+            (6, Direction::Out) => usb.uep567_mod().modify(|_, w| w.uep6_rx_en().bit(enabled)),
+            (7, Direction::In) => usb.uep567_mod().modify(|_, w| w.uep7_tx_en().bit(enabled)),
+            (7, Direction::Out) => usb.uep567_mod().modify(|_, w| w.uep7_rx_en().bit(enabled)),
+            _ => unreachable!(),
+        };
 
         EP_WAKERS[ep_addr.index()].wake();
     }
 
-    fn endpoint_set_stalled(&mut self, _ep_addr: EndpointAddress, _stalled: bool) {}
+    fn endpoint_set_stalled(&mut self, _ep_addr: EndpointAddress, _stalled: bool) {
+        todo!()
+    }
 
     fn endpoint_is_stalled(&mut self, _ep_addr: EndpointAddress) -> bool {
-        false
+        todo!()
     }
 
     async fn remote_wakeup(&mut self) -> Result<(), Unsupported> {
-        Err(Unsupported)
+        todo!()
     }
 }
 
@@ -230,60 +288,22 @@ impl Dir for In {
     }
 }
 
-pub struct Endpoint<DIR: Dir> {
-    _dir: PhantomData<DIR>,
+pub struct Endpoint<D: Dir> {
+    _dir: PhantomData<D>,
     info: EndpointInfo,
 }
 
-impl embassy_usb_driver::Endpoint for Endpoint<Out> {
+impl<D: Dir> embassy_usb_driver::Endpoint for Endpoint<D> {
     fn info(&self) -> &EndpointInfo {
         &self.info
     }
 
     async fn wait_enabled(&mut self) {
         let usb = unsafe { Usb::steal() };
+
         poll_fn(|cx| {
             EP_WAKERS[self.info.addr.index()].register(cx.waker());
-            let enabled = match self.info.addr.index() {
-                1 => usb.uep4_1_mod().read().uep1_rx_en().bit(),
-                2 => usb.uep2_3_mod().read().uep2_rx_en().bit(),
-                3 => usb.uep2_3_mod().read().uep3_rx_en().bit(),
-                4 => usb.uep4_1_mod().read().uep4_rx_en().bit(),
-                5 => usb.uep567_mod().read().uep5_rx_en().bit(),
-                6 => usb.uep567_mod().read().uep6_rx_en().bit(),
-                7 => usb.uep567_mod().read().uep7_rx_en().bit(),
-                _ => unreachable!(),
-            };
-            if enabled {
-                Poll::Ready(())
-            } else {
-                Poll::Pending
-            }
-        })
-        .await
-    }
-}
-
-impl embassy_usb_driver::Endpoint for Endpoint<In> {
-    fn info(&self) -> &EndpointInfo {
-        &self.info
-    }
-
-    async fn wait_enabled(&mut self) {
-        let usb = unsafe { Usb::steal() };
-        poll_fn(|cx| {
-            EP_WAKERS[self.info.addr.index()].register(cx.waker());
-            let enabled = match self.info.addr.index() {
-                1 => usb.uep4_1_mod().read().uep1_tx_en().bit(),
-                2 => usb.uep2_3_mod().read().uep2_tx_en().bit(),
-                3 => usb.uep2_3_mod().read().uep3_tx_en().bit(),
-                4 => usb.uep4_1_mod().read().uep4_tx_en().bit(),
-                5 => usb.uep567_mod().read().uep5_tx_en().bit(),
-                6 => usb.uep567_mod().read().uep6_tx_en().bit(),
-                7 => usb.uep567_mod().read().uep7_tx_en().bit(),
-                _ => unreachable!(),
-            };
-            if enabled {
+            if usb.uep_en(self.info.addr) {
                 Poll::Ready(())
             } else {
                 Poll::Pending
@@ -296,6 +316,9 @@ impl embassy_usb_driver::Endpoint for Endpoint<In> {
 impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
     async fn read(&mut self, buf: &mut [u8]) -> Result<usize, EndpointError> {
         let usb = unsafe { Usb::steal() };
+        usb.uep_ctrl(self.info.addr.index())
+            .modify(|r, w| w.uep_r_res().ack().uep_r_tog().bit(!r.uep_r_tog().bit()));
+
         poll_fn(|cx| {
             EP_WAKERS[self.info.addr.index()].register(cx.waker());
 
@@ -305,6 +328,12 @@ impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
                 let res = if intst.uis_token().is_out() {
                     let len = usb.rx_len().read().bits() as usize;
                     if len == buf.len() {
+                        buf[..len as usize].copy_from_slice(unsafe {
+                            core::slice::from_raw_parts(
+                                usb.uep_dma_ptr(self.info.addr),
+                                len as usize,
+                            )
+                        });
                         Poll::Ready(Ok(len))
                     } else {
                         Poll::Ready(Err(EndpointError::BufferOverflow))
@@ -313,12 +342,12 @@ impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
                     Poll::Ready(Err(EndpointError::Disabled))
                 };
 
-                usb.uep0_ctrl()
-                    .modify(|r, w| w.uep_r_res().nak().uep_r_tog().bit(!r.uep_r_tog().bit()));
+                usb.uep_ctrl(self.info.addr.index())
+                    .modify(|_, w| w.uep_r_res().nak());
 
                 // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_transfer().set_bit());
-                critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_transfer().set_bit()));
+                usb.int_en().modify(|_, w| w.uie_transfer().set_bit());
 
                 res
             } else {
@@ -333,8 +362,12 @@ impl embassy_usb_driver::EndpointIn for Endpoint<In> {
     async fn write(&mut self, buf: &[u8]) -> Result<(), EndpointError> {
         let usb = unsafe { Usb::steal() };
 
-        usb.uep0_t_len()
+        unsafe { core::slice::from_raw_parts_mut(usb.uep_dma_ptr(self.info.addr), buf.len()) }
+            .copy_from_slice(buf);
+        usb.uep_t_len(self.info.addr.index())
             .write(|w| unsafe { w.uep0_t_len().bits(buf.len() as u8) });
+        usb.uep_ctrl(self.info.addr.index())
+            .modify(|r, w| w.uep_t_res().ack().uep_t_tog().bit(!r.uep_t_tog().bit()));
 
         poll_fn(|cx| {
             EP_WAKERS[self.info.addr.index()].register(cx.waker());
@@ -348,12 +381,12 @@ impl embassy_usb_driver::EndpointIn for Endpoint<In> {
                     Poll::Ready(Err(EndpointError::Disabled))
                 };
 
-                usb.uep0_ctrl()
-                    .modify(|r, w| w.uep_t_res().nak().uep_t_tog().bit(!r.uep_t_tog().bit()));
+                usb.uep_ctrl(self.info.addr.index())
+                    .modify(|_, w| w.uep_t_res().nak());
 
                 // mark as handled and re-enable interrupt
                 usb.int_fg().write(|w| w.uif_transfer().set_bit());
-                critical_section::with(|_| usb.int_en().modify(|_, w| w.uie_transfer().set_bit()));
+                usb.int_en().modify(|_, w| w.uie_transfer().set_bit());
 
                 res
             } else {
@@ -364,51 +397,175 @@ impl embassy_usb_driver::EndpointIn for Endpoint<In> {
     }
 }
 
-pub struct ControlPipe {}
+pub struct ControlPipe {
+    out: Endpoint<Out>,
+    in_: Endpoint<In>,
+}
 
 impl embassy_usb_driver::ControlPipe for ControlPipe {
     fn max_packet_size(&self) -> usize {
-        todo!()
+        64
     }
 
     async fn setup(&mut self) -> [u8; 8] {
-        todo!()
+        let usb = unsafe { Usb::steal() };
+
+        poll_fn(|cx| {
+            EP_WAKERS[0].register(cx.waker());
+
+            let intfg = usb.int_fg().read();
+            let intst = usb.int_st().read();
+            if intfg.uif_transfer().bit() && intst.uis_token().is_setup() {
+                let mut data = [0; 8];
+                data.copy_from_slice(unsafe {
+                    core::slice::from_raw_parts(
+                        usb.uep_dma_ptr(EndpointAddress::from_parts(0, Direction::Out)),
+                        8,
+                    )
+                });
+
+                usb.uep_ctrl(0)
+                    .modify(|_, w| w.uep_r_res().nak().uep_t_res().nak());
+
+                // mark as handled and re-enable interrupt
+                usb.int_fg().write(|w| w.uif_transfer().set_bit());
+                usb.int_en().modify(|_, w| w.uie_transfer().set_bit());
+
+                Poll::Ready(data)
+            } else {
+                Poll::Pending
+            }
+        })
+        .await
     }
 
     async fn data_out(
         &mut self,
         buf: &mut [u8],
-        first: bool,
-        last: bool,
+        _first: bool,
+        _last: bool,
     ) -> Result<usize, EndpointError> {
-        let usb = unsafe { Usb::steal() };
-        if first {
-            usb.uep0_ctrl()
-                .write(|w| unsafe { w.uep_r_tog().set_bit().uep_r_res().bits(0) });
-        }
-
-        todo!()
+        self.out.read(buf).await
     }
 
-    async fn data_in(&mut self, data: &[u8], first: bool, last: bool) -> Result<(), EndpointError> {
-        todo!()
+    async fn data_in(&mut self, buf: &[u8], _first: bool, last: bool) -> Result<(), EndpointError> {
+        self.in_.write(buf).await?;
+        if last {
+            self.out.read(&mut []).await?;
+        }
+        Ok(())
     }
 
     async fn accept(&mut self) {
-        todo!()
+        _ = self.in_.write(&[]).await;
     }
 
     async fn reject(&mut self) {
-        todo!()
+        unsafe { Usb::steal() }
+            .uep_ctrl(0)
+            .modify(|_, w| w.uep_r_res().stall().uep_t_res().stall());
     }
 
     async fn accept_set_address(&mut self, addr: u8) {
-        todo!()
+        unsafe { Usb::steal() }
+            .dev_ad()
+            .write(|w| unsafe { w.addr().bits(addr) });
+        self.accept().await;
     }
 }
 
-static BUS_WAKER: AtomicWaker = AtomicWaker::new();
-static EP_WAKERS: [AtomicWaker; 8] = [const { AtomicWaker::new() }; 8];
+trait UsbExt {
+    fn uep_dma(&self, ep_addr: usize) -> &Uep0Dma;
+
+    fn uep_dma_ptr(&self, ep_addr: EndpointAddress) -> *mut u8;
+
+    fn uep_t_len(&self, ep_addr: usize) -> &Uep0TLen;
+
+    fn uep_ctrl(&self, ep_addr: usize) -> &Uep0Ctrl;
+
+    fn uep_en(&self, ep_addr: EndpointAddress) -> bool;
+}
+
+impl UsbExt for Usb {
+    fn uep_dma(&self, ep_addr: usize) -> &Uep0Dma {
+        match ep_addr {
+            0 => self.uep0_dma(),
+            1 => unsafe { &*(self.uep1_dma().as_ptr() as *mut Uep0Dma) },
+            2 => unsafe { &*(self.uep2_dma().as_ptr() as *mut Uep0Dma) },
+            3 => unsafe { &*(self.uep3_dma().as_ptr() as *mut Uep0Dma) },
+            4 => self.uep0_dma(),
+            5 => unsafe { &*(self.uep5_dma().as_ptr() as *mut Uep0Dma) },
+            6 => unsafe { &*(self.uep6_dma().as_ptr() as *mut Uep0Dma) },
+            7 => unsafe { &*(self.uep7_dma().as_ptr() as *mut Uep0Dma) },
+            _ => panic!(),
+        }
+    }
+
+    fn uep_dma_ptr(&self, ep_addr: EndpointAddress) -> *mut u8 {
+        if !self.uep_en(ep_addr) {
+            return core::ptr::null_mut();
+        }
+
+        (if ep_addr.is_out()
+            || !self.uep_en(EndpointAddress::from_parts(ep_addr.index(), Direction::Out)) // && is_in
+            || ep_addr.index() == 0
+        // ep0 shares out & in
+        {
+            0x20000000
+        } else {
+            0x20000040
+        } + if ep_addr.index() == 4 { 0x40 } else { 0x00 } // ep4 uses same buf as ep0
+            + self.uep_dma(ep_addr.index()).read().bits() as usize) as _
+    }
+
+    fn uep_t_len(&self, ep_addr: usize) -> &Uep0TLen {
+        assert!(ep_addr < 8);
+
+        unsafe {
+            &*(self.uep0_t_len().as_ptr().add(
+                ep_addr
+                    * self
+                        .uep1_t_len()
+                        .as_ptr()
+                        .offset_from(self.uep0_t_len().as_ptr()) as usize,
+            ) as *mut Uep0TLen)
+        }
+    }
+
+    fn uep_ctrl(&self, ep_addr: usize) -> &Uep0Ctrl {
+        assert!(ep_addr < 8);
+
+        unsafe {
+            &*(self.uep0_ctrl().as_ptr().add(
+                ep_addr
+                    * self
+                        .uep1_ctrl()
+                        .as_ptr()
+                        .offset_from(self.uep0_ctrl().as_ptr()) as usize,
+            ) as *mut Uep0Ctrl)
+        }
+    }
+
+    fn uep_en(&self, ep_addr: EndpointAddress) -> bool {
+        match (ep_addr.index(), ep_addr.direction()) {
+            (4, Direction::In) => self.uep4_1_mod().read().uep4_tx_en().bit(),
+            (4, Direction::Out) => self.uep4_1_mod().read().uep4_rx_en().bit(),
+            (1, Direction::In) => self.uep4_1_mod().read().uep1_tx_en().bit(),
+            (1, Direction::Out) => self.uep4_1_mod().read().uep1_rx_en().bit(),
+            (2, Direction::In) => self.uep2_3_mod().read().uep2_tx_en().bit(),
+            (2, Direction::Out) => self.uep2_3_mod().read().uep2_rx_en().bit(),
+            (3, Direction::In) => self.uep2_3_mod().read().uep3_tx_en().bit(),
+            (3, Direction::Out) => self.uep2_3_mod().read().uep3_rx_en().bit(),
+            (5, Direction::In) => self.uep567_mod().read().uep5_tx_en().bit(),
+            (5, Direction::Out) => self.uep567_mod().read().uep5_rx_en().bit(),
+            (6, Direction::In) => self.uep567_mod().read().uep6_tx_en().bit(),
+            (6, Direction::Out) => self.uep567_mod().read().uep6_rx_en().bit(),
+            (7, Direction::In) => self.uep567_mod().read().uep7_tx_en().bit(),
+            (7, Direction::Out) => self.uep567_mod().read().uep7_rx_en().bit(),
+            _ => panic!(),
+        }
+    }
+}
 
 #[riscv_rt::core_interrupt(CoreInterrupt::USB)]
 fn usb() {
@@ -416,16 +573,16 @@ fn usb() {
 
     let intfg = usb.int_fg().read();
     if intfg.uif_bus_rst().bit() {
-        // will be handled outside the isr
+        // will be handled later
         usb.int_en().modify(|_, w| w.uie_bus_rst().clear_bit());
         BUS_WAKER.wake();
     }
     if intfg.uif_transfer().bit() {
         let intst = usb.int_st().read();
         match intst.uis_token().variant() {
-            UisToken::Out => {
+            Some(UisToken::Out) => {
                 if intst.uis_tog_ok().bit() {
-                    // will be handled outside the isr
+                    // will be handled later
                     usb.int_en().modify(|_, w| w.uie_transfer().clear_bit());
                     EP_WAKERS[intst.uis_endp().bits() as usize].wake();
                 } else {
@@ -433,16 +590,21 @@ fn usb() {
                     usb.int_fg().write(|w| w.uif_transfer().set_bit());
                 }
             }
-            UisToken::In => {
-                // will be handled outside the isr
+            Some(UisToken::In) => {
+                // will be handled later
                 usb.int_en().modify(|_, w| w.uie_transfer().clear_bit());
                 EP_WAKERS[intst.uis_endp().bits() as usize].wake();
             }
-            _ => unreachable!(),
+            Some(UisToken::Setup) => {
+                // will be handled later
+                usb.int_en().modify(|_, w| w.uie_transfer().clear_bit());
+                EP_WAKERS[0].wake();
+            }
+            _ => todo!(),
         }
     }
     if intfg.uif_suspend().bit() {
-        // will be handled outside the isr
+        // will be handled later
         usb.int_en().modify(|_, w| w.uie_suspend().clear_bit());
         BUS_WAKER.wake();
     }

@@ -16,6 +16,23 @@ pub mod sys;
 pub mod sysclk;
 pub mod usb;
 
+struct CriticalSection;
+critical_section::set_impl!(CriticalSection);
+
+unsafe impl critical_section::Impl for CriticalSection {
+    unsafe fn acquire() -> critical_section::RawRestoreState {
+        let gintenr: usize;
+        core::arch::asm!("csrrci {}, 0x800, 0b1000", out(reg) gintenr);
+        gintenr & 0b1000 != 0
+    }
+
+    unsafe fn release(restore_state: critical_section::RawRestoreState) {
+        if restore_state {
+            core::arch::asm!("csrs 0x800, 0b1000")
+        }
+    }
+}
+
 pub struct Executor {
     inner: embassy_executor::raw::Executor,
     not_send: core::marker::PhantomData<*mut ()>,

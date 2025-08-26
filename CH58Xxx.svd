@@ -5732,7 +5732,7 @@
               <name>UD_PD_DIS</name>
               <description>disable USB UDP-UDM pulldown resistance: 0=enable pulldown, 1=disable</description>
               <bitRange>[7:7]</bitRange>
-              <access>read-only</access>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -5987,15 +5987,11 @@
                   <value>0</value>
                 </enumeratedValue>
                 <enumeratedValue>
-                  <name>SOF</name>
-                  <value>1</value>
-                </enumeratedValue>
-                <enumeratedValue>
                   <name>IN</name>
                   <value>2</value>
                 </enumeratedValue>
                 <enumeratedValue>
-                  <name>IDLE</name>
+                  <name>SETUP</name>
                   <value>3</value>
                 </enumeratedValue>
               </enumeratedValues>
@@ -7145,7 +7141,7 @@
               <name>UD_PD_DIS</name>
               <description>disable USB UDP-UDM pulldown resistance: 0=enable pulldown, 1=disable</description>
               <bitRange>[7:7]</bitRange>
-              <access>read-only</access>
+              <access>read-write</access>
             </field>
           </fields>
         </register>
@@ -7388,6 +7384,21 @@
               <name>UIS_TOKEN</name>
               <description>RO, bit mask of current token PID code received for USB device mode</description>
               <bitRange>[5:4]</bitRange>
+              <enumeratedValues>
+                <name>UIS_TOKEN</name>
+                <enumeratedValue>
+                  <name>OUT</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>IN</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>SETUP</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>UIS_TOG_OK</name>

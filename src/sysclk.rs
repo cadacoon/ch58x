@@ -37,7 +37,6 @@ impl Driver {
         self.cnt_per_tick
             .store(cnt_per_tick as u32, Ordering::Relaxed);
 
-        // enable & reset systick counter
         systick.ctl().write(|w| w.init().set_bit().ste().set_bit());
         systick.cmp().reset();
         systick.s().write(|w| w.cntif().clear_bit());

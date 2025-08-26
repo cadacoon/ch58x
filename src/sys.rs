@@ -1,5 +1,5 @@
 use crate::Sys;
-use riscv::asm::delay;
+use riscv::asm::{delay, nop};
 
 pub trait SysExt {
     fn set(self, config: Config) -> Self;
@@ -58,7 +58,13 @@ impl SysExt for Sys {
                     self.clk_sys_cfg().write(|w| unsafe {
                         w.clk_sys_mod().bits(0b00).clk_pll_div().bits(div & 0x1F)
                     });
+                    nop();
+                    nop();
+                    nop();
+                    nop();
                 });
+                nop();
+                nop();
 
                 with_safe_access_mode(|| {
                     self.flash_cfg().write(|w| unsafe { w.bits(0x51) });
@@ -78,6 +84,10 @@ impl SysExt for Sys {
                     self.clk_sys_cfg().write(|w| unsafe {
                         w.clk_sys_mod().bits(0b01).clk_pll_div().bits(div & 0x1F)
                     });
+                    nop();
+                    nop();
+                    nop();
+                    nop();
                 });
 
                 if div == 6 {
@@ -109,52 +119,20 @@ impl SysExt for Sys {
     }
 }
 
-enum Clock32KSrc {
+pub enum Clock32KSrc {
     LSE,
     LSI,
 }
 
-enum ClockSysSrc {
+pub enum ClockSysSrc {
     Clock32K,
     HSE(u8),
     PLL(u8),
 }
 
 pub struct Config {
-    clock32ksrc: Clock32KSrc,
-    clocksyssrc: ClockSysSrc,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            clock32ksrc: Clock32KSrc::LSI,
-            clocksyssrc: ClockSysSrc::HSE(5),
-        }
-    }
-}
-
-impl Config {
-    pub fn clock32k() -> Self {
-        Self {
-            clock32ksrc: Clock32KSrc::LSI,
-            clocksyssrc: ClockSysSrc::Clock32K,
-        }
-    }
-
-    pub fn hse(div: u8) -> Self {
-        Self {
-            clock32ksrc: Clock32KSrc::LSI,
-            clocksyssrc: ClockSysSrc::HSE(div),
-        }
-    }
-
-    pub fn pll(div: u8) -> Self {
-        Self {
-            clock32ksrc: Clock32KSrc::LSI,
-            clocksyssrc: ClockSysSrc::PLL(div),
-        }
-    }
+    pub clock32ksrc: Clock32KSrc,
+    pub clocksyssrc: ClockSysSrc,
 }
 
 pub fn with_safe_access_mode<R>(f: impl FnOnce() -> R) -> R {
