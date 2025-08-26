@@ -10,7 +10,27 @@
 #[doc = "8 - UserEnvCall"] UserEnvCall = 8 ,
 #[doc = "9 - Breakpoint"] Breakpoint = 9 ,
 #[doc = "12 - SysTick"] SysTick = 12 ,
-#[doc = "14 - Software"] Software = 14 , } pub use riscv :: interrupt :: Exception ;
+#[doc = "14 - Software"] Software = 14 ,
+#[doc = "16 - TMR0"] TMR0 = 16 ,
+#[doc = "17 - GPIOA"] GPIOA = 17 ,
+#[doc = "18 - GPIOB"] GPIOB = 18 ,
+#[doc = "19 - SPI0"] SPI0 = 19 ,
+#[doc = "20 - BLEB"] BLEB = 20 ,
+#[doc = "21 - BLEL"] BLEL = 21 ,
+#[doc = "22 - USB"] USB = 22 ,
+#[doc = "23 - USB2"] USB2 = 23 ,
+#[doc = "24 - TMR1"] TMR1 = 24 ,
+#[doc = "25 - TMR2"] TMR2 = 25 ,
+#[doc = "26 - UART0"] UART0 = 26 ,
+#[doc = "27 - UART1"] UART1 = 27 ,
+#[doc = "28 - RTC"] RTC = 28 ,
+#[doc = "29 - ADC"] ADC = 29 ,
+#[doc = "30 - I2C"] I2C = 30 ,
+#[doc = "31 - PWMx"] PWMx = 31 ,
+#[doc = "32 - TMR3"] TMR3 = 32 ,
+#[doc = "33 - UART2"] UART2 = 33 ,
+#[doc = "34 - UART3"] UART3 = 34 ,
+#[doc = "35 - WDOG_BAT"] WDOG_BAT = 35 , } pub use riscv :: interrupt :: Exception ;
 #[doc = r" Priority levels in the device"]
 #[riscv :: pac_enum (unsafe PriorityNumber)]
 #[derive (Debug , Clone , Copy , PartialEq , Eq)] pub enum Priority {
@@ -37,30 +57,7 @@
 #[doc = r" Retrieves the cause of a trap in the current hart (machine mode)."]
 #[doc = r""]
 #[doc = r" If the raw cause is not a valid interrupt or exception for the target, it panics."]
-#[inline] pub fn cause () -> Trap { try_cause () . unwrap () }
-#[doc = r" External interrupts. These interrupts are handled by the external peripherals."]
-#[riscv :: pac_enum (unsafe ExternalInterruptNumber)]
-#[derive (Debug , Clone , Copy , PartialEq , Eq)] pub enum ExternalInterrupt {
-#[doc = "16 - TMR0_IRQHandler"] TMR0 = 16 ,
-#[doc = "17 - GPIO_IRQHandler"] GPIOA = 17 ,
-#[doc = "18 - GPIO_IRQHandler"] GPIOB = 18 ,
-#[doc = "19 - SPI0_IRQHandler"] SPI0 = 19 ,
-#[doc = "20 - BB_IRQHandler"] BLEB = 20 ,
-#[doc = "21 - LLE_IRQHandler"] BLEL = 21 ,
-#[doc = "22 - USB_IRQHandler"] USB = 22 ,
-#[doc = "23 - USB2_IRQHandler"] USB2 = 23 ,
-#[doc = "24 - TMR1_IRQHandler"] TMR1 = 24 ,
-#[doc = "25 - TMR2_IRQHandler"] TMR2 = 25 ,
-#[doc = "26 - UART0_IRQHandler"] UART0 = 26 ,
-#[doc = "27 - UART1_IRQHandler"] UART1 = 27 ,
-#[doc = "28 - RTC_IRQHandler"] RTC = 28 ,
-#[doc = "29 - ADC_IRQHandler"] ADC = 29 ,
-#[doc = "30 - I2C_IRQHandler"] I2C = 30 ,
-#[doc = "31 - PPWMX_SPI1_IRQHandler"] PWMx = 31 ,
-#[doc = "32 - TMR3_IRQHandler"] TMR3 = 32 ,
-#[doc = "33 - UART1_IRQHandler"] UART2 = 33 ,
-#[doc = "34 - UART3_IRQHandler"] UART3 = 34 ,
-#[doc = "35 - WDT_IRQHandler"] WDOG_BAT = 35 , } }
+#[inline] pub fn cause () -> Trap { try_cause () . unwrap () } }
 #[doc = "System Control Register"] pub type Sys = crate :: Periph < sys :: RegisterBlock , 0x4000_1000 > ; impl core :: fmt :: Debug for Sys { fn fmt (& self , f : & mut core :: fmt :: Formatter) -> core :: fmt :: Result { f . debug_struct ("Sys") . finish () } }
 #[doc = "System Control Register"] pub mod sys {
 #[repr (C)]

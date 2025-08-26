@@ -44,7 +44,7 @@ impl Driver {
     }
 
     fn now_cnt(&self) -> u64 {
-        self.systick.get().unwrap().cmp().read().bits()
+        self.systick.get().unwrap().cnt().read().bits()
     }
 
     fn trigger_alarm(&self, cs: CriticalSection) {
@@ -117,7 +117,7 @@ pub fn init(systick: Systick, sys: &Sys, pfic: &Pfic) {
     pfic.enable(CoreInterrupt::SysTick);
 }
 
-//#[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
+#[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
 fn systick() {
     critical_section::with(|cs| DRIVER.trigger_alarm(cs));
 }

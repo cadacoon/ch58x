@@ -1,8 +1,6 @@
 #![no_std]
+#![feature(abi_riscv_interrupt)]
 #![allow(mismatched_lifetime_syntaxes, non_camel_case_types)]
-
-mod critical_section;
-pub mod register;
 
 mod generic;
 pub use generic::*;

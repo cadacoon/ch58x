@@ -7,6 +7,8 @@ use ch58x::{
     sysclk,
 };
 use embassy_executor::Spawner;
+use embassy_time::Timer;
+use riscv::asm::delay;
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) -> ! {
