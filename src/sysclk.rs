@@ -37,7 +37,7 @@ impl Driver {
         self.cnt_per_tick
             .store(cnt_per_tick as u32, Ordering::Relaxed);
 
-        // enable and reset systick counter
+        // enable & reset systick counter
         systick.ctl().write(|w| w.init().set_bit().ste().set_bit());
         systick.cmp().reset();
         systick.s().write(|w| w.cntif().clear_bit());
@@ -47,23 +47,27 @@ impl Driver {
         self.systick.get().unwrap().cnt().read().bits()
     }
 
-    fn trigger_alarm(&self, cs: CriticalSection) {
-        // clear interrupt flag
+    fn on_alarm(&self) {
         let systick = self.systick.get().unwrap();
+
+        // disarm alarm
+        systick.ctl().modify(|_, w| w.stie().clear_bit());
         systick.s().write(|w| w.cntif().clear_bit());
 
-        let mut next_cnt = self
-            .queue
-            .borrow(cs)
-            .borrow_mut()
-            .next_expiration(self.now_cnt());
-        while !self.set_alarm(cs, next_cnt) {
-            next_cnt = self
+        critical_section::with(|cs| {
+            let mut next_cnt = self
                 .queue
                 .borrow(cs)
                 .borrow_mut()
                 .next_expiration(self.now_cnt());
-        }
+            while !self.set_alarm(cs, next_cnt) {
+                next_cnt = self
+                    .queue
+                    .borrow(cs)
+                    .borrow_mut()
+                    .next_expiration(self.now_cnt());
+            }
+        });
     }
 
     fn set_alarm(&self, _cs: CriticalSection, next_cnt: u64) -> bool {
@@ -119,5 +123,5 @@ pub fn init(systick: Systick, sys: &Sys, pfic: &Pfic) {
 
 #[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
 fn systick() {
-    critical_section::with(|cs| DRIVER.trigger_alarm(cs));
+    DRIVER.on_alarm();
 }

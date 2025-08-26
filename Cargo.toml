@@ -21,6 +21,7 @@ vcell = "0.1"
 
 embedded-hal = "1.0"
 
+embassy-executor = "0.8"
 embassy-sync = "0.7"
 embassy-time-driver = "0.2"
 embassy-time-queue-utils = "0.2"
