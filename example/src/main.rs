@@ -15,7 +15,7 @@ async fn main(_spawner: Spawner) {
     });
     sysclk::init(peripherals.systick, &sys, &peripherals.pfic);
 
-    let mut buf = [0; 512];
+    let mut buf = [0; 256];
     let driver = usb::Driver::new(peripherals.usb, &mut buf);
     let config = embassy_usb::Config::new(0xc0de, 0xcafe);
     let mut config_descriptor = [0; 256];

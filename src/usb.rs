@@ -81,14 +81,6 @@ impl<'a> Driver<'a> {
                 .unwrap()
         };
 
-        if !data.out && !data.in_ {
-            let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
-            unsafe { Usb::steal() }
-                .uep_dma(index)
-                .write(|w| unsafe { w.bits(buf as u16) });
-            self.buf_offset += 128;
-        }
-
         data.typ = ep_type;
         match D::dir() {
             Direction::Out => data.out = true,
@@ -134,6 +126,25 @@ impl<'a> embassy_usb_driver::Driver<'a> for Driver<'a> {
     }
 
     fn start(mut self, control_max_packet_size: u16) -> (Self::Bus, Self::ControlPipe) {
+        for (i, ep) in self.eps.iter().enumerate() {
+            if ep.out && ep.in_ {
+                let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
+                unsafe { Usb::steal() }
+                    .uep_dma(i)
+                    .write(|w| unsafe { w.bits(buf as u16) });
+                self.buf_offset += 128;
+            } else if ep.out || ep.in_ {
+                let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
+                unsafe { Usb::steal() }
+                    .uep_dma(i)
+                    .write(|w| unsafe { w.bits(buf as u16) });
+                self.buf_offset += 64;
+            }
+            if i == 4 {
+                self.buf_offset += 64;
+            }
+        }
+
         let out = self
             .alloc_endpoint(EndpointType::Control, None, control_max_packet_size, 0)
             .unwrap();

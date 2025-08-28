@@ -29,10 +29,10 @@ embassy-usb-driver = "0.2"
 
 [profile.release]
 opt-level = "z"
-lto = true
-panic = "abort"
 codegen-units = 1
+lto = "fat"
+panic = "abort"
 
 [patch.crates-io]
-riscv = { git = "https://github.com/valaphee/qingke.git" }
-riscv-rt = { git = "https://github.com/valaphee/qingke.git" }
+riscv = { git = "https://github.com/cadacoon/riscv.git" }
+riscv-rt = { git = "https://github.com/cadacoon/riscv.git" }
