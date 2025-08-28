@@ -46,7 +46,7 @@ impl Driver {
         self.systick.get().unwrap().cnt().read().bits()
     }
 
-    fn on_alarm(&self) {
+    fn wake(&self) {
         let systick = self.systick.get().unwrap();
 
         // disarm alarm
@@ -59,7 +59,7 @@ impl Driver {
                 .borrow(cs)
                 .borrow_mut()
                 .next_expiration(self.now_cnt());
-            while !self.set_alarm(cs, next_cnt) {
+            while !self.set(cs, next_cnt) {
                 next_cnt = self
                     .queue
                     .borrow(cs)
@@ -69,7 +69,7 @@ impl Driver {
         });
     }
 
-    fn set_alarm(&self, _cs: CriticalSection, next_cnt: u64) -> bool {
+    fn set(&self, _cs: CriticalSection, next_cnt: u64) -> bool {
         let systick = self.systick.get().unwrap();
 
         // already passed
@@ -105,7 +105,7 @@ impl embassy_time_driver::Driver for Driver {
             let mut queue = self.queue.borrow(cs).borrow_mut();
             if queue.schedule_wake(at * cnt_per_tick, waker) {
                 let mut next = queue.next_expiration(self.now_cnt());
-                while !self.set_alarm(cs, next) {
+                while !self.set(cs, next) {
                     next = queue.next_expiration(self.now_cnt());
                 }
             }
@@ -122,5 +122,5 @@ pub fn init(systick: Systick, sys: &Sys, pfic: &Pfic) {
 
 #[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]
 fn systick() {
-    DRIVER.on_alarm();
+    DRIVER.wake();
 }

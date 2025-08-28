@@ -12,9 +12,3 @@ embassy-executor = "0.8"
 embassy-futures = "0.1"
 embassy-time = "0.4"
 embassy-usb = "0.5"
-
-[profile.release]
-opt-level = "z"
-lto = true
-panic = "abort"
-codegen-units = 1

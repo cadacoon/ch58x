@@ -48,7 +48,7 @@ impl<'a> Driver<'a> {
         max_packet_size: u16,
         interval_ms: u8,
     ) -> Result<Endpoint<D>, EndpointAllocError> {
-        let slot = if let Some(addr) = ep_addr {
+        let (index, data) = if let Some(addr) = ep_addr {
             let requested_index = addr.index();
             if requested_index >= 8 {
                 return Err(EndpointAllocError);
@@ -81,24 +81,24 @@ impl<'a> Driver<'a> {
                 .unwrap()
         };
 
-        if !slot.1.out && !slot.1.in_ {
+        if !data.out && !data.in_ {
             let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
             unsafe { Usb::steal() }
-                .uep_dma(slot.0)
+                .uep_dma(index)
                 .write(|w| unsafe { w.bits(buf as u16) });
             self.buf_offset += 128;
         }
 
-        slot.1.typ = ep_type;
+        data.typ = ep_type;
         match D::dir() {
-            Direction::Out => slot.1.out = true,
-            Direction::In => slot.1.in_ = true,
+            Direction::Out => data.out = true,
+            Direction::In => data.in_ = true,
         };
 
         Ok(Endpoint {
             _dir: PhantomData,
             info: EndpointInfo {
-                addr: ep_addr.unwrap(),
+                addr: EndpointAddress::from_parts(index, D::dir()),
                 ep_type,
                 max_packet_size,
                 interval_ms,
@@ -327,17 +327,10 @@ impl embassy_usb_driver::EndpointOut for Endpoint<Out> {
             if intfg.uif_transfer().bit() && intst.uis_endp() == self.info.addr.index() as u8 {
                 let res = if intst.uis_token().is_out() {
                     let len = usb.rx_len().read().bits() as usize;
-                    if len == buf.len() {
-                        buf[..len as usize].copy_from_slice(unsafe {
-                            core::slice::from_raw_parts(
-                                usb.uep_dma_ptr(self.info.addr),
-                                len as usize,
-                            )
-                        });
-                        Poll::Ready(Ok(len))
-                    } else {
-                        Poll::Ready(Err(EndpointError::BufferOverflow))
-                    }
+                    buf[..len as usize].copy_from_slice(unsafe {
+                        core::slice::from_raw_parts(usb.uep_dma_ptr(self.info.addr), len as usize)
+                    });
+                    Poll::Ready(Ok(len))
                 } else {
                     Poll::Ready(Err(EndpointError::Disabled))
                 };
@@ -442,21 +435,37 @@ impl embassy_usb_driver::ControlPipe for ControlPipe {
     async fn data_out(
         &mut self,
         buf: &mut [u8],
-        _first: bool,
+        first: bool,
         _last: bool,
     ) -> Result<usize, EndpointError> {
+        if first {
+            unsafe { Usb::steal() }
+                .uep_ctrl(0)
+                .modify(|_, w| w.uep_r_tog().clear_bit());
+        }
         self.out.read(buf).await
     }
 
-    async fn data_in(&mut self, buf: &[u8], _first: bool, last: bool) -> Result<(), EndpointError> {
+    async fn data_in(&mut self, buf: &[u8], first: bool, last: bool) -> Result<(), EndpointError> {
+        if first {
+            unsafe { Usb::steal() }
+                .uep_ctrl(0)
+                .modify(|_, w| w.uep_t_tog().clear_bit());
+        }
         self.in_.write(buf).await?;
         if last {
+            unsafe { Usb::steal() }
+                .uep_ctrl(0)
+                .modify(|_, w| w.uep_r_tog().clear_bit());
             self.out.read(&mut []).await?;
         }
         Ok(())
     }
 
     async fn accept(&mut self) {
+        unsafe { Usb::steal() }
+            .uep_ctrl(0)
+            .modify(|_, w| w.uep_t_tog().clear_bit());
         _ = self.in_.write(&[]).await;
     }
 
@@ -467,10 +476,10 @@ impl embassy_usb_driver::ControlPipe for ControlPipe {
     }
 
     async fn accept_set_address(&mut self, addr: u8) {
+        self.accept().await;
         unsafe { Usb::steal() }
             .dev_ad()
             .write(|w| unsafe { w.addr().bits(addr) });
-        self.accept().await;
     }
 }
 
@@ -506,48 +515,49 @@ impl UsbExt for Usb {
             return core::ptr::null_mut();
         }
 
+        // ep0 has a shared buf and ep4 uses the same address as ep0
         (if ep_addr.is_out()
             || !self.uep_en(EndpointAddress::from_parts(ep_addr.index(), Direction::Out)) // && is_in
             || ep_addr.index() == 0
-        // ep0 shares out & in
         {
             0x20000000
         } else {
             0x20000040
-        } + if ep_addr.index() == 4 { 0x40 } else { 0x00 } // ep4 uses same buf as ep0
+        } + if ep_addr.index() == 4 { 0x40 } else { 0x00 }
             + self.uep_dma(ep_addr.index()).read().bits() as usize) as _
     }
 
     fn uep_t_len(&self, ep_addr: usize) -> &Uep0TLen {
-        assert!(ep_addr < 8);
-
-        unsafe {
-            &*(self.uep0_t_len().as_ptr().add(
-                ep_addr
-                    * self
-                        .uep1_t_len()
-                        .as_ptr()
-                        .offset_from(self.uep0_t_len().as_ptr()) as usize,
-            ) as *mut Uep0TLen)
+        match ep_addr {
+            0 => self.uep0_t_len(),
+            1 => unsafe { &*(self.uep1_t_len().as_ptr() as *mut Uep0TLen) },
+            2 => unsafe { &*(self.uep2_t_len().as_ptr() as *mut Uep0TLen) },
+            3 => unsafe { &*(self.uep3_t_len().as_ptr() as *mut Uep0TLen) },
+            4 => unsafe { &*(self.uep4_t_len().as_ptr() as *mut Uep0TLen) },
+            5 => unsafe { &*(self.uep5_t_len().as_ptr() as *mut Uep0TLen) },
+            6 => unsafe { &*(self.uep6_t_len().as_ptr() as *mut Uep0TLen) },
+            7 => unsafe { &*(self.uep7_t_len().as_ptr() as *mut Uep0TLen) },
+            _ => panic!(),
         }
     }
 
     fn uep_ctrl(&self, ep_addr: usize) -> &Uep0Ctrl {
-        assert!(ep_addr < 8);
-
-        unsafe {
-            &*(self.uep0_ctrl().as_ptr().add(
-                ep_addr
-                    * self
-                        .uep1_ctrl()
-                        .as_ptr()
-                        .offset_from(self.uep0_ctrl().as_ptr()) as usize,
-            ) as *mut Uep0Ctrl)
+        match ep_addr {
+            0 => self.uep0_ctrl(),
+            1 => unsafe { &*(self.uep1_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            2 => unsafe { &*(self.uep2_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            3 => unsafe { &*(self.uep3_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            4 => unsafe { &*(self.uep4_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            5 => unsafe { &*(self.uep5_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            6 => unsafe { &*(self.uep6_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            7 => unsafe { &*(self.uep7_ctrl().as_ptr() as *mut Uep0Ctrl) },
+            _ => panic!(),
         }
     }
 
     fn uep_en(&self, ep_addr: EndpointAddress) -> bool {
         match (ep_addr.index(), ep_addr.direction()) {
+            (0, _) => true,
             (4, Direction::In) => self.uep4_1_mod().read().uep4_tx_en().bit(),
             (4, Direction::Out) => self.uep4_1_mod().read().uep4_rx_en().bit(),
             (1, Direction::In) => self.uep4_1_mod().read().uep1_tx_en().bit(),

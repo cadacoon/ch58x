@@ -15,7 +15,8 @@ async fn main(_spawner: Spawner) {
     });
     sysclk::init(peripherals.systick, &sys, &peripherals.pfic);
 
-    let driver = usb::Driver::new(peripherals.usb);
+    let mut buf = [0; 512];
+    let driver = usb::Driver::new(peripherals.usb, &mut buf);
     let config = embassy_usb::Config::new(0xc0de, 0xcafe);
     let mut config_descriptor = [0; 256];
     let mut bos_descriptor = [0; 256];
@@ -23,8 +24,7 @@ async fn main(_spawner: Spawner) {
     let mut control_buf = [0; 7];
 
     let mut state = embassy_usb::class::cdc_acm::State::new();
-
-    let mut builder = embassy_usb::Builder::new(
+    let mut build = embassy_usb::Builder::new(
         driver,
         config,
         &mut config_descriptor,
@@ -32,20 +32,16 @@ async fn main(_spawner: Spawner) {
         &mut msos_descriptor,
         &mut control_buf,
     );
+    let mut class = embassy_usb::class::cdc_acm::CdcAcmClass::new(&mut build, &mut state, 64);
 
-    let mut class = embassy_usb::class::cdc_acm::CdcAcmClass::new(&mut builder, &mut state, 64);
-
-    let mut usb = builder.build();
-
+    let mut usb = build.build();
     let usb_fut = usb.run();
-
     let echo_fut = async {
         loop {
             class.wait_connection().await;
             let _ = echo(&mut class).await;
         }
     };
-
     join(usb_fut, echo_fut).await;
 }
 
@@ -54,20 +50,9 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-struct Disconnected {}
-
-impl From<embassy_usb::driver::EndpointError> for Disconnected {
-    fn from(val: embassy_usb::driver::EndpointError) -> Self {
-        match val {
-            embassy_usb::driver::EndpointError::BufferOverflow => panic!("Buffer overflow"),
-            embassy_usb::driver::EndpointError::Disabled => Disconnected {},
-        }
-    }
-}
-
-async fn echo<'d>(
-    class: &mut embassy_usb::class::cdc_acm::CdcAcmClass<'d, usb::Driver>,
-) -> Result<(), Disconnected> {
+async fn echo<'a>(
+    class: &mut embassy_usb::class::cdc_acm::CdcAcmClass<'a, usb::Driver<'a>>,
+) -> Result<(), embassy_usb::driver::EndpointError> {
     let mut buf = [0; 64];
     loop {
         let n = class.read_packet(&mut buf).await?;
