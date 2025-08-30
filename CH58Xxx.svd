@@ -1321,11 +1321,49 @@
               <name>PGA_GAIN</name>
               <description>RW, set ADC input PGA gain: 00=-12dB, 01=-6dB, 10=0dB, 11=6dB</description>
               <bitRange>[5:4]</bitRange>
+              <enumeratedValues>
+                <name>PGA_GAIN</name>
+                <enumeratedValue>
+                  <name>1_4</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>1_2</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>1</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>2</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>CLK_DIV</name>
               <description>RW, select ADC clock frequency: 00=3.2MHz, 01=2.67MHz, 10=5.33MHz, 11=4MHz</description>
               <bitRange>[7:6]</bitRange>
+              <enumeratedValues>
+                <name>CLK_DIV</name>
+                <enumeratedValue>
+                  <name>10</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>4</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>6</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>8</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
           </fields>
         </register>
@@ -1505,14 +1543,14 @@
           <name>DMA_BEG</name>
           <description>RW, ADC DMA begin address</description>
           <addressOffset>0x68</addressOffset>
-          <size>0x8</size>
+          <size>0x10</size>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
               <name>DMA_BEG</name>
               <description>ADC DMA begin address</description>
-              <bitRange>[7:0]</bitRange>
+              <bitRange>[15:0]</bitRange>
             </field>
           </fields>
         </register>
@@ -1520,14 +1558,14 @@
           <name>DMA_END</name>
           <description>RW, ADC DMA end address</description>
           <addressOffset>0x6C</addressOffset>
-          <size>0x8</size>
+          <size>0x10</size>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>
               <name>DMA_END</name>
               <description>ADC DMA end address</description>
-              <bitRange>[7:0]</bitRange>
+              <bitRange>[15:0]</bitRange>
             </field>
           </fields>
         </register>

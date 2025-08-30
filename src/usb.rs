@@ -131,13 +131,13 @@ impl<'a> embassy_usb_driver::Driver<'a> for Driver<'a> {
                 let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
                 unsafe { Usb::steal() }
                     .uep_dma(i)
-                    .write(|w| unsafe { w.bits(buf as u16) });
+                    .write(|w| unsafe { w.uep0_dma().bits(buf as u16) });
                 self.buf_offset += 128;
             } else if ep.out || ep.in_ {
                 let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
                 unsafe { Usb::steal() }
                     .uep_dma(i)
-                    .write(|w| unsafe { w.bits(buf as u16) });
+                    .write(|w| unsafe { w.uep0_dma().bits(buf as u16) });
                 self.buf_offset += 64;
             }
             if i == 4 {

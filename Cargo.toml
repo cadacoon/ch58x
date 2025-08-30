@@ -1,7 +1,3 @@
-[workspace]
-resolver = "3"
-members = ["example"]
-
 [package]
 name = "ch58x"
 version = "0.1.0"

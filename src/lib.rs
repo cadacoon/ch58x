@@ -10,6 +10,7 @@ pub use raw::*;
 
 extern crate embedded_hal as hal;
 
+pub mod adc;
 pub mod gpio;
 pub mod pfic;
 pub mod sys;
@@ -48,6 +49,10 @@ impl Executor {
 
     pub fn run(&'static mut self, init: impl FnOnce(embassy_executor::Spawner)) -> ! {
         init(self.inner.spawner());
+
+        unsafe { Sys::steal() }
+            .rst_wdog_ctrl()
+            .modify(|_, w| w.wdog_rst_en().set_bit());
 
         loop {
             unsafe { self.inner.poll() };

@@ -12,8 +12,8 @@
       {
         devShell = with pkgs; mkShell {
           nativeBuildInputs = [
-            rustup
             rust-analyzer
+            rustup
 
             svdtools
             svd2rust

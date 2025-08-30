@@ -3257,7 +3257,7 @@ pub mod adc {
         dma_now: DmaNow,
         _reserved11: [u8; 0x03],
         dma_beg: DmaBeg,
-        _reserved12: [u8; 0x03],
+        _reserved12: [u8; 0x02],
         dma_end: DmaEnd,
     }
     impl RegisterBlock {
@@ -3395,14 +3395,178 @@ pub mod adc {
         pub type OfsTestR = crate::BitReader;
         #[doc = "Field `OFS_TEST` writer - RW, enable ADC offset test mode: 0=normal mode, 1=short to test offset"]
         pub type OfsTestW<'a, REG> = crate::BitWriter<'a, REG>;
+        #[doc = "RW, set ADC input PGA gain: 00=-12dB, 01=-6dB, 10=0dB, 11=6dB\n\nValue on reset: 2"]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        #[repr(u8)]
+        pub enum PgaGain {
+            #[doc = "0: `0`"]
+            _1_4 = 0,
+            #[doc = "1: `1`"]
+            _1_2 = 1,
+            #[doc = "2: `10`"]
+            _1 = 2,
+            #[doc = "3: `11`"]
+            _2 = 3,
+        }
+        impl From<PgaGain> for u8 {
+            #[inline(always)]
+            fn from(variant: PgaGain) -> Self {
+                variant as _
+            }
+        }
+        impl crate::FieldSpec for PgaGain {
+            type Ux = u8;
+        }
+        impl crate::IsEnum for PgaGain {}
         #[doc = "Field `PGA_GAIN` reader - RW, set ADC input PGA gain: 00=-12dB, 01=-6dB, 10=0dB, 11=6dB"]
-        pub type PgaGainR = crate::FieldReader;
+        pub type PgaGainR = crate::FieldReader<PgaGain>;
+        impl PgaGainR {
+            #[doc = "Get enumerated values variant"]
+            #[inline(always)]
+            pub const fn variant(&self) -> PgaGain {
+                match self.bits {
+                    0 => PgaGain::_1_4,
+                    1 => PgaGain::_1_2,
+                    2 => PgaGain::_1,
+                    3 => PgaGain::_2,
+                    _ => unreachable!(),
+                }
+            }
+            #[doc = "`0`"]
+            #[inline(always)]
+            pub fn is_1_4(&self) -> bool {
+                *self == PgaGain::_1_4
+            }
+            #[doc = "`1`"]
+            #[inline(always)]
+            pub fn is_1_2(&self) -> bool {
+                *self == PgaGain::_1_2
+            }
+            #[doc = "`10`"]
+            #[inline(always)]
+            pub fn is_1(&self) -> bool {
+                *self == PgaGain::_1
+            }
+            #[doc = "`11`"]
+            #[inline(always)]
+            pub fn is_2(&self) -> bool {
+                *self == PgaGain::_2
+            }
+        }
         #[doc = "Field `PGA_GAIN` writer - RW, set ADC input PGA gain: 00=-12dB, 01=-6dB, 10=0dB, 11=6dB"]
-        pub type PgaGainW<'a, REG> = crate::FieldWriter<'a, REG, 2>;
+        pub type PgaGainW<'a, REG> = crate::FieldWriter<'a, REG, 2, PgaGain, crate::Safe>;
+        impl<'a, REG> PgaGainW<'a, REG>
+        where
+            REG: crate::Writable + crate::RegisterSpec,
+            REG::Ux: From<u8>,
+        {
+            #[doc = "`0`"]
+            #[inline(always)]
+            pub fn _1_4(self) -> &'a mut crate::W<REG> {
+                self.variant(PgaGain::_1_4)
+            }
+            #[doc = "`1`"]
+            #[inline(always)]
+            pub fn _1_2(self) -> &'a mut crate::W<REG> {
+                self.variant(PgaGain::_1_2)
+            }
+            #[doc = "`10`"]
+            #[inline(always)]
+            pub fn _1(self) -> &'a mut crate::W<REG> {
+                self.variant(PgaGain::_1)
+            }
+            #[doc = "`11`"]
+            #[inline(always)]
+            pub fn _2(self) -> &'a mut crate::W<REG> {
+                self.variant(PgaGain::_2)
+            }
+        }
+        #[doc = "RW, select ADC clock frequency: 00=3.2MHz, 01=2.67MHz, 10=5.33MHz, 11=4MHz\n\nValue on reset: 2"]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        #[repr(u8)]
+        pub enum ClkDiv {
+            #[doc = "0: `0`"]
+            _10 = 0,
+            #[doc = "1: `1`"]
+            _4 = 1,
+            #[doc = "2: `10`"]
+            _6 = 2,
+            #[doc = "3: `11`"]
+            _8 = 3,
+        }
+        impl From<ClkDiv> for u8 {
+            #[inline(always)]
+            fn from(variant: ClkDiv) -> Self {
+                variant as _
+            }
+        }
+        impl crate::FieldSpec for ClkDiv {
+            type Ux = u8;
+        }
+        impl crate::IsEnum for ClkDiv {}
         #[doc = "Field `CLK_DIV` reader - RW, select ADC clock frequency: 00=3.2MHz, 01=2.67MHz, 10=5.33MHz, 11=4MHz"]
-        pub type ClkDivR = crate::FieldReader;
+        pub type ClkDivR = crate::FieldReader<ClkDiv>;
+        impl ClkDivR {
+            #[doc = "Get enumerated values variant"]
+            #[inline(always)]
+            pub const fn variant(&self) -> ClkDiv {
+                match self.bits {
+                    0 => ClkDiv::_10,
+                    1 => ClkDiv::_4,
+                    2 => ClkDiv::_6,
+                    3 => ClkDiv::_8,
+                    _ => unreachable!(),
+                }
+            }
+            #[doc = "`0`"]
+            #[inline(always)]
+            pub fn is_10(&self) -> bool {
+                *self == ClkDiv::_10
+            }
+            #[doc = "`1`"]
+            #[inline(always)]
+            pub fn is_4(&self) -> bool {
+                *self == ClkDiv::_4
+            }
+            #[doc = "`10`"]
+            #[inline(always)]
+            pub fn is_6(&self) -> bool {
+                *self == ClkDiv::_6
+            }
+            #[doc = "`11`"]
+            #[inline(always)]
+            pub fn is_8(&self) -> bool {
+                *self == ClkDiv::_8
+            }
+        }
         #[doc = "Field `CLK_DIV` writer - RW, select ADC clock frequency: 00=3.2MHz, 01=2.67MHz, 10=5.33MHz, 11=4MHz"]
-        pub type ClkDivW<'a, REG> = crate::FieldWriter<'a, REG, 2>;
+        pub type ClkDivW<'a, REG> = crate::FieldWriter<'a, REG, 2, ClkDiv, crate::Safe>;
+        impl<'a, REG> ClkDivW<'a, REG>
+        where
+            REG: crate::Writable + crate::RegisterSpec,
+            REG::Ux: From<u8>,
+        {
+            #[doc = "`0`"]
+            #[inline(always)]
+            pub fn _10(self) -> &'a mut crate::W<REG> {
+                self.variant(ClkDiv::_10)
+            }
+            #[doc = "`1`"]
+            #[inline(always)]
+            pub fn _4(self) -> &'a mut crate::W<REG> {
+                self.variant(ClkDiv::_4)
+            }
+            #[doc = "`10`"]
+            #[inline(always)]
+            pub fn _6(self) -> &'a mut crate::W<REG> {
+                self.variant(ClkDiv::_6)
+            }
+            #[doc = "`11`"]
+            #[inline(always)]
+            pub fn _8(self) -> &'a mut crate::W<REG> {
+                self.variant(ClkDiv::_8)
+            }
+        }
         impl R {
             #[doc = "Bit 0 - RW, ADC power control: 0=power down, 1=power on"]
             #[inline(always)]
@@ -3908,18 +4072,18 @@ pub mod adc {
         #[doc = "Register `DMA_BEG` writer"]
         pub type W = crate::W<DmaBegSpec>;
         #[doc = "Field `DMA_BEG` reader - ADC DMA begin address"]
-        pub type DmaBegR = crate::FieldReader;
+        pub type DmaBegR = crate::FieldReader<u16>;
         #[doc = "Field `DMA_BEG` writer - ADC DMA begin address"]
-        pub type DmaBegW<'a, REG> = crate::FieldWriter<'a, REG, 8>;
+        pub type DmaBegW<'a, REG> = crate::FieldWriter<'a, REG, 16, u16>;
         impl R {
-            #[doc = "Bits 0:7 - ADC DMA begin address"]
+            #[doc = "Bits 0:15 - ADC DMA begin address"]
             #[inline(always)]
             pub fn dma_beg(&self) -> DmaBegR {
                 DmaBegR::new(self.bits)
             }
         }
         impl W {
-            #[doc = "Bits 0:7 - ADC DMA begin address"]
+            #[doc = "Bits 0:15 - ADC DMA begin address"]
             #[inline(always)]
             pub fn dma_beg(&mut self) -> DmaBegW<'_, DmaBegSpec> {
                 DmaBegW::new(self, 0)
@@ -3928,7 +4092,7 @@ pub mod adc {
         #[doc = "RW, ADC DMA begin address\n\nYou can [`read`](crate::Reg::read) this register and get [`dma_beg::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`dma_beg::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
         pub struct DmaBegSpec;
         impl crate::RegisterSpec for DmaBegSpec {
-            type Ux = u8;
+            type Ux = u16;
         }
         #[doc = "`read()` method returns [`dma_beg::R`](R) reader structure"]
         impl crate::Readable for DmaBegSpec {}
@@ -3949,18 +4113,18 @@ pub mod adc {
         #[doc = "Register `DMA_END` writer"]
         pub type W = crate::W<DmaEndSpec>;
         #[doc = "Field `DMA_END` reader - ADC DMA end address"]
-        pub type DmaEndR = crate::FieldReader;
+        pub type DmaEndR = crate::FieldReader<u16>;
         #[doc = "Field `DMA_END` writer - ADC DMA end address"]
-        pub type DmaEndW<'a, REG> = crate::FieldWriter<'a, REG, 8>;
+        pub type DmaEndW<'a, REG> = crate::FieldWriter<'a, REG, 16, u16>;
         impl R {
-            #[doc = "Bits 0:7 - ADC DMA end address"]
+            #[doc = "Bits 0:15 - ADC DMA end address"]
             #[inline(always)]
             pub fn dma_end(&self) -> DmaEndR {
                 DmaEndR::new(self.bits)
             }
         }
         impl W {
-            #[doc = "Bits 0:7 - ADC DMA end address"]
+            #[doc = "Bits 0:15 - ADC DMA end address"]
             #[inline(always)]
             pub fn dma_end(&mut self) -> DmaEndW<'_, DmaEndSpec> {
                 DmaEndW::new(self, 0)
@@ -3969,7 +4133,7 @@ pub mod adc {
         #[doc = "RW, ADC DMA end address\n\nYou can [`read`](crate::Reg::read) this register and get [`dma_end::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`dma_end::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
         pub struct DmaEndSpec;
         impl crate::RegisterSpec for DmaEndSpec {
-            type Ux = u8;
+            type Ux = u16;
         }
         #[doc = "`read()` method returns [`dma_end::R`](R) reader structure"]
         impl crate::Readable for DmaEndSpec {}

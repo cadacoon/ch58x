@@ -1,2 +1,6 @@
 [toolchain]
-path = "/home/valaphee/Documents/rust/build/host/stage1/"
+#path = "/home/valaphee/Documents/rust/build/host/stage1/"
+channel = "nightly"
+profile = "minimal"
+components = ["rustfmt", "rust-src", "llvm-tools"]
+targets = ["riscv32imac-unknown-none-elf"]
