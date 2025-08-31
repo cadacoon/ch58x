@@ -19,6 +19,8 @@ struct EndpointData {
 }
 
 pub struct Driver<'a> {
+    usb: Usb,
+
     eps: [EndpointData; 8],
 
     buf: &'a mut [u8],
@@ -29,8 +31,11 @@ static BUS_WAKER: AtomicWaker = AtomicWaker::new();
 static EP_WAKERS: [AtomicWaker; 8] = [const { AtomicWaker::new() }; 8];
 
 impl<'a> Driver<'a> {
-    pub fn new(_usb: Usb, buf: &'a mut [u8]) -> Self {
+    pub fn new(usb: Usb, pfic: &Pfic, buf: &'a mut [u8]) -> Self {
+        pfic.enable(CoreInterrupt::USB, None);
+
         Self {
+            usb,
             eps: [EndpointData {
                 typ: EndpointType::Control,
                 out: false,
@@ -129,13 +134,13 @@ impl<'a> embassy_usb_driver::Driver<'a> for Driver<'a> {
         for (i, ep) in self.eps.iter().enumerate() {
             if ep.out && ep.in_ {
                 let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
-                unsafe { Usb::steal() }
+                self.usb
                     .uep_dma(i)
                     .write(|w| unsafe { w.uep0_dma().bits(buf as u16) });
                 self.buf_offset += 128;
             } else if ep.out || ep.in_ {
                 let buf = unsafe { self.buf.as_mut_ptr().offset(self.buf_offset as _) };
-                unsafe { Usb::steal() }
+                self.usb
                     .uep_dma(i)
                     .write(|w| unsafe { w.uep0_dma().bits(buf as u16) });
                 self.buf_offset += 64;
@@ -151,22 +156,30 @@ impl<'a> embassy_usb_driver::Driver<'a> for Driver<'a> {
         let in_ = self
             .alloc_endpoint(EndpointType::Control, None, control_max_packet_size, 0)
             .unwrap();
-        (Self::Bus { inited: false }, Self::ControlPipe { out, in_ })
+        (
+            Self::Bus {
+                usb: self.usb,
+                inited: false,
+            },
+            Self::ControlPipe { out, in_ },
+        )
     }
 }
 
 pub struct Bus {
+    usb: Usb,
     inited: bool,
 }
 
 impl Bus {
     fn reset(&mut self) {
-        let usb = unsafe { Usb::steal() };
-        usb.dev_ad().reset();
-        usb.uep_ctrl(0)
+        self.usb.dev_ad().reset();
+        self.usb
+            .uep_ctrl(0)
             .write(|w| w.uep_r_res().ack().uep_t_res().nak());
         for ep_addr in 1..8 {
-            usb.uep_ctrl(ep_addr)
+            self.usb
+                .uep_ctrl(ep_addr)
                 .write(|w| w.uep_r_res().nak().uep_t_res().nak());
         }
     }
@@ -178,20 +191,19 @@ impl embassy_usb_driver::Bus for Bus {
     async fn disable(&mut self) {}
 
     async fn poll(&mut self) -> Event {
-        let usb = unsafe { Usb::steal() };
-
         if !self.inited {
-            usb.ctrl().write(|w| w);
+            self.usb.ctrl().write(|w| w);
 
             unsafe { Sys::steal() }
                 .pin_analog_ie()
                 .modify(|_, w| w.pin_usb_ie().set_bit().pin_usb_dp_pu().set_bit());
-            usb.udev_ctrl()
+            self.usb
+                .udev_ctrl()
                 .write(|w| w.ud_port_en().set_bit().ud_pd_dis().set_bit());
 
-            usb.dev_ad().reset();
-            usb.int_fg().write(|w| unsafe { w.bits(0xFF) });
-            usb.ctrl().write(|w| {
+            self.usb.dev_ad().reset();
+            self.usb.int_fg().write(|w| unsafe { w.bits(0xFF) });
+            self.usb.ctrl().write(|w| {
                 w.uc_dev_pu_en()
                     .set_bit()
                     .uc_int_busy()
@@ -199,7 +211,7 @@ impl embassy_usb_driver::Bus for Bus {
                     .uc_dma_en()
                     .set_bit()
             });
-            usb.int_en().write(|w| {
+            self.usb.int_en().write(|w| {
                 w.uie_bus_rst()
                     .set_bit()
                     .uie_transfer()
@@ -208,8 +220,6 @@ impl embassy_usb_driver::Bus for Bus {
                     .set_bit()
             });
 
-            unsafe { Pfic::steal() }.enable(CoreInterrupt::USB);
-
             self.inited = true;
             return Event::PowerDetected;
         }
@@ -217,21 +227,21 @@ impl embassy_usb_driver::Bus for Bus {
         poll_fn(|cx| {
             BUS_WAKER.register(cx.waker());
 
-            let intfg = usb.int_fg().read();
+            let intfg = self.usb.int_fg().read();
             if intfg.uif_bus_rst().bit() {
                 self.reset();
 
                 // mark as handled and re-enable interrupt
-                usb.int_fg().write(|w| w.uif_bus_rst().set_bit());
-                usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit());
+                self.usb.int_fg().write(|w| w.uif_bus_rst().set_bit());
+                self.usb.int_en().modify(|_, w| w.uie_bus_rst().set_bit());
 
                 Poll::Ready(Event::Reset)
             } else if intfg.uif_suspend().bit() {
-                let misst = usb.mis_st().read();
+                let misst = self.usb.mis_st().read();
 
                 // mark as handled and re-enable interrupt
-                usb.int_fg().write(|w| w.uif_suspend().set_bit());
-                usb.int_en().modify(|_, w| w.uie_suspend().set_bit());
+                self.usb.int_fg().write(|w| w.uif_suspend().set_bit());
+                self.usb.int_en().modify(|_, w| w.uie_suspend().set_bit());
 
                 if misst.ums_suspend().bit() {
                     Poll::Ready(Event::Suspend)
@@ -634,3 +644,6 @@ fn usb() {
         usb.int_fg().write(|w| w.uif_hst_sof().set_bit());
     }
 }
+
+#[riscv_rt::core_interrupt(CoreInterrupt::USB2)]
+fn usb2() {}

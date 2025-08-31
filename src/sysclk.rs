@@ -116,8 +116,7 @@ impl embassy_time_driver::Driver for Driver {
 pub fn init(systick: Systick, sys: &Sys, pfic: &Pfic) {
     DRIVER.init(systick, sys);
 
-    pfic.set_priority(CoreInterrupt::SysTick, Priority::P15);
-    pfic.enable(CoreInterrupt::SysTick);
+    pfic.enable(CoreInterrupt::SysTick, Some(Priority::P15));
 }
 
 #[riscv_rt::core_interrupt(CoreInterrupt::SysTick)]

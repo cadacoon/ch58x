@@ -50,13 +50,12 @@ impl Executor {
     pub fn run(&'static mut self, init: impl FnOnce(embassy_executor::Spawner)) -> ! {
         init(self.inner.spawner());
 
-        unsafe { Sys::steal() }
-            .rst_wdog_ctrl()
-            .modify(|_, w| w.wdog_rst_en().set_bit());
-
         loop {
+            // SAFETY: property initialized, not reentrant on the same executor, not called
+            // in pender
             unsafe { self.inner.poll() };
 
+            // SAFETY: WFE can be issued at will
             unsafe { Pfic::steal() }
                 .sctlr()
                 .modify(|_, w| w.wfitowfe().set_bit());
@@ -67,6 +66,7 @@ impl Executor {
 
 #[export_name = "__pender"]
 fn __pender(_: *mut ()) {
+    // SAFETY: SEV can be issued at will
     unsafe { Pfic::steal() }
         .sctlr()
         .modify(|_, w| w.setevent().set_bit());
