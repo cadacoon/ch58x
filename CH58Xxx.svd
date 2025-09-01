@@ -1113,7 +1113,7 @@
           <description>RO, system clock count value for 32KHz multi-cycles</description>
           <addressOffset>0x50</addressOffset>
           <size>0x10</size>
-          <access>read-only</access>
+          <access>read-write</access>
           <resetValue>0x00000000</resetValue>
           <fields>
             <field>

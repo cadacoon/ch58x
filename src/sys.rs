@@ -26,8 +26,14 @@ impl SysExt for Sys {
             Clock32KSrc::LSI => {
                 // power-up internal low speed oscillator and use it as 32k clock source
                 with_safe_access_mode(|| {
-                    self.ck32k_config()
-                        .modify(|_, w| w.clk_osc32k_xt().clear_bit().clk_int32k_pon().set_bit());
+                    self.ck32k_config().modify(|_, w| {
+                        w.clk_osc32k_xt()
+                            .clear_bit()
+                            .clk_int32k_pon()
+                            .set_bit()
+                            .clk_xt32k_pon()
+                            .clear_bit()
+                    });
                 });
             }
         }

@@ -2863,19 +2863,27 @@ pub mod sys {
             const RESET_VALUE: u8 = 0x32;
         }
     }
-    #[doc = "OSC_CAL_CNT (r) register accessor: RO, system clock count value for 32KHz multi-cycles\n\nYou can [`read`](crate::Reg::read) this register and get [`osc_cal_cnt::R`]. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@osc_cal_cnt`] module"]
+    #[doc = "OSC_CAL_CNT (rw) register accessor: RO, system clock count value for 32KHz multi-cycles\n\nYou can [`read`](crate::Reg::read) this register and get [`osc_cal_cnt::R`]. You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`osc_cal_cnt::W`]. You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [`mod@osc_cal_cnt`] module"]
     #[doc(alias = "OSC_CAL_CNT")]
     pub type OscCalCnt = crate::Reg<osc_cal_cnt::OscCalCntSpec>;
     #[doc = "RO, system clock count value for 32KHz multi-cycles"]
     pub mod osc_cal_cnt {
         #[doc = "Register `OSC_CAL_CNT` reader"]
         pub type R = crate::R<OscCalCntSpec>;
+        #[doc = "Register `OSC_CAL_CNT` writer"]
+        pub type W = crate::W<OscCalCntSpec>;
         #[doc = "Field `OSC_CAL_CNT` reader - RO, system clock count value for 32KHz multi-cycles"]
         pub type OscCalCntR = crate::FieldReader<u16>;
+        #[doc = "Field `OSC_CAL_CNT` writer - RO, system clock count value for 32KHz multi-cycles"]
+        pub type OscCalCntW<'a, REG> = crate::FieldWriter<'a, REG, 14, u16>;
         #[doc = "Field `OSC_CAL_OV_CLR` reader - RW1, indicate R8_OSC_CAL_OV_CNT not zero, set 1 to clear R8_OSC_CAL_OV_CNT"]
         pub type OscCalOvClrR = crate::BitReader;
+        #[doc = "Field `OSC_CAL_OV_CLR` writer - RW1, indicate R8_OSC_CAL_OV_CNT not zero, set 1 to clear R8_OSC_CAL_OV_CNT"]
+        pub type OscCalOvClrW<'a, REG> = crate::BitWriter<'a, REG>;
         #[doc = "Field `OSC_CAL_IF` reader - RW1, interrupt flag for oscillator capture end, set 1 to clear"]
         pub type OscCalIfR = crate::BitReader;
+        #[doc = "Field `OSC_CAL_IF` writer - RW1, interrupt flag for oscillator capture end, set 1 to clear"]
+        pub type OscCalIfW<'a, REG> = crate::BitWriter<'a, REG>;
         impl R {
             #[doc = "Bits 0:13 - RO, system clock count value for 32KHz multi-cycles"]
             #[inline(always)]
@@ -2893,13 +2901,34 @@ pub mod sys {
                 OscCalIfR::new(((self.bits >> 15) & 1) != 0)
             }
         }
-        #[doc = "RO, system clock count value for 32KHz multi-cycles\n\nYou can [`read`](crate::Reg::read) this register and get [`osc_cal_cnt::R`](R). See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+        impl W {
+            #[doc = "Bits 0:13 - RO, system clock count value for 32KHz multi-cycles"]
+            #[inline(always)]
+            pub fn osc_cal_cnt(&mut self) -> OscCalCntW<'_, OscCalCntSpec> {
+                OscCalCntW::new(self, 0)
+            }
+            #[doc = "Bit 14 - RW1, indicate R8_OSC_CAL_OV_CNT not zero, set 1 to clear R8_OSC_CAL_OV_CNT"]
+            #[inline(always)]
+            pub fn osc_cal_ov_clr(&mut self) -> OscCalOvClrW<'_, OscCalCntSpec> {
+                OscCalOvClrW::new(self, 14)
+            }
+            #[doc = "Bit 15 - RW1, interrupt flag for oscillator capture end, set 1 to clear"]
+            #[inline(always)]
+            pub fn osc_cal_if(&mut self) -> OscCalIfW<'_, OscCalCntSpec> {
+                OscCalIfW::new(self, 15)
+            }
+        }
+        #[doc = "RO, system clock count value for 32KHz multi-cycles\n\nYou can [`read`](crate::Reg::read) this register and get [`osc_cal_cnt::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`osc_cal_cnt::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
         pub struct OscCalCntSpec;
         impl crate::RegisterSpec for OscCalCntSpec {
             type Ux = u16;
         }
         #[doc = "`read()` method returns [`osc_cal_cnt::R`](R) reader structure"]
         impl crate::Readable for OscCalCntSpec {}
+        #[doc = "`write(|w| ..)` method takes [`osc_cal_cnt::W`](W) writer structure"]
+        impl crate::Writable for OscCalCntSpec {
+            type Safety = crate::Unsafe;
+        }
         #[doc = "`reset()` method sets OSC_CAL_CNT to value 0"]
         impl crate::Resettable for OscCalCntSpec {}
     }
